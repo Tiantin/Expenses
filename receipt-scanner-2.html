@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Expenses">
+<meta name="theme-color" content="#0f0f0f">
+<title>Expense Logger</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0f0f0f;--surface:#1a1a1a;--surface2:#242424;--border:rgba(255,255,255,0.08);--border2:rgba(255,255,255,0.14);--text:#f0f0f0;--text2:#888;--text3:#555;--accent:#e8ff47;--accent-dim:rgba(232,255,71,0.12);--accent-text:#0f0f0f;--blue:#4a9eff;--blue-dim:rgba(74,158,255,0.12);--amber:#ffb547;--amber-dim:rgba(255,181,71,0.12);--green:#4ade80;--green-dim:rgba(74,222,128,0.1);--red:#ff6b6b;--red-dim:rgba(255,107,107,0.12);--radius:14px;--radius-sm:8px;}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+html,body{height:100%;background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;overflow:hidden;}
+body{display:flex;flex-direction:column;}
+.nav{display:flex;padding:0 4px;background:var(--bg);border-top:0.5px solid var(--border);position:fixed;bottom:0;left:0;right:0;z-index:100;padding-bottom:env(safe-area-inset-bottom);}
+.nav-btn{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;padding:10px 0 8px;background:none;border:none;color:var(--text3);font-family:'DM Sans',sans-serif;font-size:11px;cursor:pointer;transition:color 0.2s;}
+.nav-btn.active{color:var(--accent);}
+.nav-icon{width:22px;height:22px;}
+.main{flex:1;overflow-y:auto;padding:0 0 80px;-webkit-overflow-scrolling:touch;}
+.screen{display:none;padding:16px;}
+.screen.active{display:block;}
+.page-head{padding:20px 0 16px;}
+.page-title{font-size:24px;font-weight:600;letter-spacing:-0.5px;}
+.page-sub{font-size:13px;color:var(--text2);margin-top:2px;}
+
+/* Steps */
+.step-wrap{margin-bottom:10px;}
+.step-card{background:var(--surface);border:0.5px solid var(--border);border-radius:var(--radius);padding:16px;transition:border-color 0.2s;}
+.step-card.complete{border-color:rgba(232,255,71,0.3);}
+.step-num{font-size:10px;font-weight:600;letter-spacing:0.1em;color:var(--text3);text-transform:uppercase;margin-bottom:8px;display:flex;align-items:center;gap:6px;}
+.step-num .check{width:16px;height:16px;border-radius:50%;background:var(--accent);display:none;align-items:center;justify-content:center;}
+.step-num .check svg{width:10px;height:10px;}
+.step-card.complete .check{display:flex;}
+.step-card.complete .step-num-text{color:var(--accent);}
+.step-label{font-size:16px;font-weight:500;margin-bottom:12px;}
+.chip-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.chip{padding:12px 10px;border:0.5px solid var(--border2);border-radius:var(--radius-sm);background:var(--surface2);font-family:'DM Sans',sans-serif;font-size:14px;font-weight:400;color:var(--text2);cursor:pointer;text-align:center;transition:all 0.15s;-webkit-appearance:none;}
+.chip:active{transform:scale(0.96);}
+.chip.selected{background:var(--accent-dim);border-color:var(--accent);color:var(--accent);font-weight:500;}
+.chip-full{grid-column:1/-1;}
+
+/* Form */
+.form-card{background:var(--surface);border:0.5px solid var(--border);border-radius:var(--radius);padding:16px;margin-top:10px;display:none;}
+.form-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;}
+.form-title{font-size:15px;font-weight:500;}
+.sel-pills{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px;}
+.pill{font-size:12px;font-weight:500;padding:5px 12px;border-radius:20px;}
+.pill-co{background:var(--blue-dim);color:var(--blue);}
+.pill-cl{background:var(--amber-dim);color:var(--amber);}
+.divider{height:0.5px;background:var(--border);margin:12px 0;}
+.field{margin-bottom:12px;}
+.field-label{font-size:11px;font-weight:500;letter-spacing:0.05em;text-transform:uppercase;color:var(--text3);margin-bottom:5px;}
+.field input,.field select{width:100%;background:var(--surface2);border:0.5px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-family:'DM Sans',sans-serif;font-size:16px;padding:11px 12px;-webkit-appearance:none;appearance:none;}
+.field input:focus,.field select:focus{outline:none;border-color:var(--accent);}
+.field select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23888' d='M6 8L1 3h10z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;padding-right:32px;}
+.btn-save{width:100%;padding:15px;background:var(--accent);color:var(--accent-text);border:none;border-radius:var(--radius-sm);font-family:'DM Sans',sans-serif;font-size:16px;font-weight:600;cursor:pointer;margin-top:6px;transition:opacity 0.2s;}
+.btn-save:active{opacity:0.85;}
+.btn-secondary{width:100%;padding:13px;background:transparent;border:0.5px solid var(--border2);border-radius:var(--radius-sm);font-family:'DM Sans',sans-serif;font-size:15px;color:var(--text2);cursor:pointer;margin-top:8px;}
+.btn-danger{width:100%;padding:14px;background:var(--red-dim);border:0.5px solid var(--red);border-radius:var(--radius-sm);font-family:'DM Sans',sans-serif;font-size:15px;color:var(--red);cursor:pointer;font-weight:500;}
+
+/* Add expense btn */
+.btn-add-expense{width:100%;padding:15px;background:var(--accent-dim);border:0.5px solid var(--accent);border-radius:var(--radius-sm);font-family:'DM Sans',sans-serif;font-size:15px;font-weight:600;color:var(--accent);cursor:pointer;margin-top:4px;display:none;transition:opacity .2s;}
+.btn-add-expense:active{opacity:.8;}
+
+/* Log */
+.filter-row{display:flex;gap:8px;margin-bottom:12px;}
+.filter-select{flex:1;background:var(--surface);border:0.5px solid var(--border);border-radius:var(--radius-sm);color:var(--text2);font-family:'DM Sans',sans-serif;font-size:13px;padding:9px 10px;-webkit-appearance:none;appearance:none;}
+.metrics{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px;}
+.metric{background:var(--surface);border:0.5px solid var(--border);border-radius:var(--radius);padding:14px;}
+.metric-label{font-size:11px;color:var(--text3);font-weight:500;letter-spacing:0.04em;text-transform:uppercase;margin-bottom:4px;}
+.metric-val{font-family:'DM Mono',monospace;font-size:20px;font-weight:500;}
+.metric-val.warn{color:var(--amber);}
+.exp-list{background:var(--surface);border:0.5px solid var(--border);border-radius:var(--radius);overflow:hidden;}
+.exp-item{padding:14px 16px;border-bottom:0.5px solid var(--border);}
+.exp-item:last-child{border-bottom:none;}
+.exp-top{display:flex;justify-content:space-between;align-items:flex-start;gap:8px;}
+.exp-merchant{font-weight:500;font-size:15px;}
+.exp-amount{font-family:'DM Mono',monospace;font-weight:500;font-size:15px;white-space:nowrap;}
+.exp-meta{font-size:12px;color:var(--text3);margin-top:3px;}
+.exp-notes{font-size:12px;color:var(--text3);margin-top:2px;font-style:italic;}
+.exp-footer{display:flex;align-items:center;gap:6px;margin-top:8px;flex-wrap:wrap;}
+.tag{font-size:11px;font-weight:500;padding:3px 9px;border-radius:20px;}
+.tag-co{background:var(--blue-dim);color:var(--blue);}
+.tag-cl{background:var(--amber-dim);color:var(--amber);}
+.tag-done{background:var(--green-dim);color:var(--green);}
+.claimed-toggle{margin-left:auto;display:flex;align-items:center;gap:5px;font-size:12px;color:var(--text3);cursor:pointer;}
+.claimed-toggle input{width:15px;height:15px;cursor:pointer;accent-color:var(--accent);}
+.empty{text-align:center;padding:3rem 1rem;color:var(--text3);font-size:14px;line-height:1.6;}
+.btn-export{width:100%;padding:13px;background:transparent;border:0.5px solid var(--border2);border-radius:var(--radius-sm);font-family:'DM Sans',sans-serif;font-size:14px;color:var(--text2);cursor:pointer;margin-top:10px;display:none;}
+
+/* Summary */
+.sum-section-title{font-size:11px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--text3);margin:16px 0 8px;}
+.sum-list{background:var(--surface);border:0.5px solid var(--border);border-radius:var(--radius);overflow:hidden;}
+.sum-row{display:flex;justify-content:space-between;align-items:center;padding:13px 16px;border-bottom:0.5px solid var(--border);}
+.sum-row:last-child{border-bottom:none;}
+.sum-name{font-weight:500;font-size:14px;}
+.sum-right{text-align:right;}
+.sum-total{font-family:'DM Mono',monospace;font-size:14px;font-weight:500;}
+.sum-unclaimed{font-size:11px;color:var(--amber);margin-top:2px;}
+
+/* Settings */
+.settings-section{margin-bottom:24px;}
+.settings-title{font-size:11px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--text3);margin-bottom:10px;}
+.settings-card{background:var(--surface);border:0.5px solid var(--border);border-radius:var(--radius);overflow:hidden;}
+.settings-item{display:flex;justify-content:space-between;align-items:center;padding:13px 16px;border-bottom:0.5px solid var(--border);}
+.settings-item:last-child{border-bottom:none;}
+.settings-item-name{font-size:15px;}
+.btn-remove{background:var(--red-dim);border:none;color:var(--red);font-family:'DM Sans',sans-serif;font-size:12px;font-weight:500;padding:5px 12px;border-radius:20px;cursor:pointer;}
+.add-row{display:flex;gap:8px;margin-top:10px;}
+.add-input{flex:1;background:var(--surface2);border:0.5px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-family:'DM Sans',sans-serif;font-size:16px;padding:11px 12px;}
+.add-input:focus{outline:none;border-color:var(--accent);}
+.btn-add{padding:11px 18px;background:var(--accent);color:var(--accent-text);border:none;border-radius:var(--radius-sm);font-family:'DM Sans',sans-serif;font-size:14px;font-weight:600;cursor:pointer;white-space:nowrap;}
+
+/* Modal */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:200;display:none;align-items:center;justify-content:center;padding:20px;}
+.modal-overlay.show{display:flex;}
+.modal{background:var(--surface);border:0.5px solid var(--border2);border-radius:var(--radius);padding:24px;width:100%;max-width:320px;}
+.modal-title{font-size:18px;font-weight:600;margin-bottom:8px;}
+.modal-body{font-size:14px;color:var(--text2);margin-bottom:24px;line-height:1.6;}
+.modal-btns{display:flex;gap:10px;}
+.modal-btns button{flex:1;padding:13px;border-radius:var(--radius-sm);font-family:'DM Sans',sans-serif;font-size:15px;font-weight:500;cursor:pointer;border:none;}
+.btn-modal-cancel{background:var(--surface2);color:var(--text2);}
+.btn-modal-confirm{background:var(--red);color:#fff;}
+.toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%) translateY(10px);background:var(--accent);color:var(--accent-text);padding:10px 20px;border-radius:20px;font-size:14px;font-weight:500;opacity:0;transition:all 0.25s;pointer-events:none;z-index:999;white-space:nowrap;}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+</style>
+</head>
+<body>
+<div class="main">
+
+  <!-- ADD EXPENSE -->
+  <div class="screen active" id="screen-scan">
+    <div class="page-head"><div class="page-title">New Expense</div><div class="page-sub">Select company and claimant</div></div>
+
+    <div class="step-wrap">
+      <div class="step-card" id="step1">
+        <div class="step-num"><span class="step-num-text">Step 1</span><span class="check"><svg viewBox="0 0 10 10" fill="none"><path d="M2 5l2.5 2.5L8 3" stroke="#0f0f0f" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span></div>
+        <div class="step-label">Which company is this for?</div>
+        <div class="chip-grid" id="companyChips"></div>
+      </div>
+    </div>
+
+    <div class="step-wrap">
+      <div class="step-card" id="step2">
+        <div class="step-num"><span class="step-num-text">Step 2</span><span class="check"><svg viewBox="0 0 10 10" fill="none"><path d="M2 5l2.5 2.5L8 3" stroke="#0f0f0f" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span></div>
+        <div class="step-label">Who are you claiming from?</div>
+        <div class="chip-grid" id="claimantChips"></div>
+      </div>
+    </div>
+
+    <button class="btn-add-expense" id="addExpenseBtn" onclick="showForm()">+ Enter expense details</button>
+
+    <div class="form-card" id="formCard">
+      <div class="form-header"><div class="form-title">Expense details</div></div>
+      <div class="sel-pills" id="formPills"></div>
+      <div class="field"><div class="field-label">Date</div><input type="date" id="f-date"/></div>
+      <div class="field"><div class="field-label">Merchant / Vendor</div><input type="text" id="f-merchant" placeholder="e.g. Shell Station"/></div>
+      <div class="field"><div class="field-label">Amount (THB)</div><input type="number" id="f-amount" placeholder="0.00" step="0.01" inputmode="decimal"/></div>
+      <div class="field"><div class="field-label">Category</div>
+        <select id="f-category">
+          <option>Food &amp; entertainment</option>
+          <option>Fuel &amp; transport</option>
+          <option>Materials &amp; supplies</option>
+          <option>Subscriptions &amp; software</option>
+          <option>Equipment</option>
+          <option>Other / miscellaneous</option>
+        </select>
+      </div>
+      <div class="field"><div class="field-label">Payment method</div>
+        <select id="f-payment"><option>Card</option><option>Cash</option></select>
+      </div>
+      <div class="field"><div class="field-label">Notes (optional)</div><input type="text" id="f-notes" placeholder="e.g. Client lunch, site visit"/></div>
+      <button class="btn-save" onclick="saveExpense()">Save Expense</button>
+      <button class="btn-secondary" onclick="resetForm()">Start Over</button>
+    </div>
+  </div>
+
+  <!-- LOG -->
+  <div class="screen" id="screen-log">
+    <div class="page-head"><div class="page-title">Expense Log</div><div class="page-sub">All recorded expenses</div></div>
+    <div class="filter-row">
+      <select class="filter-select" id="filter-co" onchange="renderLog()"><option value="">All companies</option></select>
+      <select class="filter-select" id="filter-cl" onchange="renderLog()"><option value="">All claimants</option></select>
+    </div>
+    <div class="metrics" id="logMetrics"></div>
+    <div id="logList"></div>
+    <button class="btn-export" id="exportBtn" onclick="exportCSV()">Export to CSV</button>
+  </div>
+
+  <!-- SUMMARY -->
+  <div class="screen" id="screen-summary">
+    <div class="page-head"><div class="page-title">Summary</div><div class="page-sub">Totals by company &amp; claimant</div></div>
+    <div id="summaryContent"></div>
+  </div>
+
+  <!-- SETTINGS -->
+  <div class="screen" id="screen-settings">
+    <div class="page-head"><div class="page-title">Settings</div><div class="page-sub">Manage companies, claimants &amp; data</div></div>
+    <div class="settings-section">
+      <div class="settings-title">Companies</div>
+      <div class="settings-card" id="companiesList"></div>
+      <div class="add-row">
+        <input class="add-input" type="text" id="newCompany" placeholder="New company name"/>
+        <button class="btn-add" onclick="addCompany()">Add</button>
+      </div>
+    </div>
+    <div class="settings-section">
+      <div class="settings-title">Claimants</div>
+      <div class="settings-card" id="claimantsList"></div>
+      <div class="add-row">
+        <input class="add-input" type="text" id="newClaimant" placeholder="New claimant name"/>
+        <button class="btn-add" onclick="addClaimant()">Add</button>
+      </div>
+    </div>
+    <div class="settings-section">
+      <div class="settings-title">Data</div>
+      <button class="btn-danger" onclick="confirmClear()">Clear all expense data</button>
+    </div>
+  </div>
+</div>
+
+<!-- NAV -->
+<nav class="nav">
+  <button class="nav-btn active" onclick="showScreen('scan')" id="nav-scan">
+    <svg class="nav-icon" viewBox="0 0 22 22" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="11" r="3"/><path d="M11 2v2.5M11 17.5V20M2 11h2.5M17.5 11H20M4.9 4.9l1.8 1.8M15.3 15.3l1.8 1.8M4.9 17.1l1.8-1.8M15.3 6.7l1.8-1.8"/></svg>
+    Add
+  </button>
+  <button class="nav-btn" onclick="showScreen('log')" id="nav-log">
+    <svg class="nav-icon" viewBox="0 0 22 22" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 5h14M4 9h10M4 13h12M4 17h8"/></svg>
+    Log
+  </button>
+  <button class="nav-btn" onclick="showScreen('summary')" id="nav-summary">
+    <svg class="nav-icon" viewBox="0 0 22 22" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="12" width="4" height="7" rx="1"/><rect x="9" y="7" width="4" height="12" rx="1"/><rect x="15" y="3" width="4" height="16" rx="1"/></svg>
+    Summary
+  </button>
+  <button class="nav-btn" onclick="showScreen('settings')" id="nav-settings">
+    <svg class="nav-icon" viewBox="0 0 22 22" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="11" r="3"/><path d="M11 2v2M11 18v2M2 11h2M18 11h2M4.9 4.9l1.4 1.4M15.7 15.7l1.4 1.4M4.9 17.1l1.4-1.4M15.7 6.3l1.4-1.4"/></svg>
+    Settings
+  </button>
+</nav>
+
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal">
+    <div class="modal-title">Clear all data?</div>
+    <div class="modal-body">This will permanently delete all saved expenses. This cannot be undone.</div>
+    <div class="modal-btns">
+      <button class="btn-modal-cancel" onclick="closeModal()">Cancel</button>
+      <button class="btn-modal-confirm" onclick="clearAllData()">Delete all</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const STORAGE_KEY='expscanner_v1';
+const SETTINGS_KEY='expscanner_settings_v1';
+let expenses=[];
+let companies=['Namara','Ion Phuket','NIC','Kamala Holding','Citipac'];
+let claimants=['Coastal','Wu','Tan'];
+let selCompany=null,selClaimant=null;
+
+function saveData(){try{localStorage.setItem(STORAGE_KEY,JSON.stringify(expenses));}catch(e){}}
+function loadData(){try{const d=localStorage.getItem(STORAGE_KEY);if(d)expenses=JSON.parse(d);}catch(e){expenses=[];}}
+function saveSettings(){try{localStorage.setItem(SETTINGS_KEY,JSON.stringify({companies,claimants}));}catch(e){}}
+function loadSettings(){try{const d=localStorage.getItem(SETTINGS_KEY);if(d){const s=JSON.parse(d);companies=s.companies||companies;claimants=s.claimants||claimants;}}catch(e){}}
+function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2200);}
+
+function showScreen(name){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('screen-'+name).classList.add('active');
+  document.getElementById('nav-'+name).classList.add('active');
+  document.querySelector('.main').scrollTop=0;
+  if(name==='scan')renderChips();
+  if(name==='log'){populateLogFilters();renderLog();}
+  if(name==='summary')renderSummary();
+  if(name==='settings')renderSettings();
+}
+
+function renderChips(){
+  const cg=document.getElementById('companyChips');
+  cg.innerHTML='';
+  companies.forEach((c,i)=>{
+    const btn=document.createElement('button');
+    btn.className='chip'+(companies.length%2!==0&&i===companies.length-1?' chip-full':'');
+    btn.textContent=c;
+    if(selCompany===c)btn.classList.add('selected');
+    btn.onclick=()=>selectCompany(c);
+    cg.appendChild(btn);
+  });
+  const clg=document.getElementById('claimantChips');
+  clg.innerHTML='';
+  claimants.forEach((c,i)=>{
+    const btn=document.createElement('button');
+    btn.className='chip'+(claimants.length%2!==0&&i===claimants.length-1?' chip-full':'');
+    btn.textContent=c;
+    if(selClaimant===c)btn.classList.add('selected');
+    btn.onclick=()=>selectClaimant(c);
+    clg.appendChild(btn);
+  });
+}
+
+function selectCompany(name){
+  selCompany=name;
+  document.querySelectorAll('#companyChips .chip').forEach(c=>c.classList.toggle('selected',c.textContent.trim()===name));
+  document.getElementById('step1').classList.add('complete');
+  updateAddBtn();
+}
+function selectClaimant(name){
+  selClaimant=name;
+  document.querySelectorAll('#claimantChips .chip').forEach(c=>c.classList.toggle('selected',c.textContent.trim()===name));
+  document.getElementById('step2').classList.add('complete');
+  updateAddBtn();
+}
+function updateAddBtn(){
+  const btn=document.getElementById('addExpenseBtn');
+  if(selCompany&&selClaimant){
+    btn.style.display='block';
+  } else {
+    btn.style.display='none';
+    document.getElementById('formCard').style.display='none';
+  }
+}
+
+function showForm(){
+  document.getElementById('f-date').value=new Date().toISOString().split('T')[0];
+  document.getElementById('f-merchant').value='';
+  document.getElementById('f-amount').value='';
+  document.getElementById('f-notes').value='';
+  document.getElementById('f-category').value='Food & entertainment';
+  document.getElementById('f-payment').value='Card';
+  document.getElementById('formPills').innerHTML=`<span class="pill pill-co">${selCompany}</span><span class="pill pill-cl">Claim: ${selClaimant}</span>`;
+  const fc=document.getElementById('formCard');
+  fc.style.display='block';
+  setTimeout(()=>fc.scrollIntoView({behavior:'smooth',block:'start'}),50);
+}
+
+function saveExpense(){
+  const merchant=document.getElementById('f-merchant').value.trim();
+  const amount=parseFloat(document.getElementById('f-amount').value)||0;
+  if(!merchant){toast('Enter a merchant name');return;}
+  if(!amount){toast('Enter an amount');return;}
+  expenses.push({
+    id:Date.now(),company:selCompany,claimant:selClaimant,
+    date:document.getElementById('f-date').value,
+    merchant,amount,
+    category:document.getElementById('f-category').value,
+    payment:document.getElementById('f-payment').value,
+    notes:document.getElementById('f-notes').value,
+    claimed:false
+  });
+  saveData();toast('Expense saved!');resetForm();showScreen('log');
+}
+
+function resetForm(){
+  document.getElementById('formCard').style.display='none';
+  document.getElementById('addExpenseBtn').style.display='none';
+  selCompany=null;selClaimant=null;
+  document.querySelectorAll('.step-card').forEach(c=>c.classList.remove('complete'));
+  renderChips();
+}
+
+function fmt(n){return '฿'+Math.round(n).toLocaleString('en');}
+
+function populateLogFilters(){
+  const fco=document.getElementById('filter-co');
+  const fcl=document.getElementById('filter-cl');
+  const coVal=fco.value,clVal=fcl.value;
+  fco.innerHTML='<option value="">All companies</option>';
+  companies.forEach(c=>{const o=document.createElement('option');o.value=c;o.textContent=c;if(c===coVal)o.selected=true;fco.appendChild(o);});
+  fcl.innerHTML='<option value="">All claimants</option>';
+  claimants.forEach(c=>{const o=document.createElement('option');o.value=c;o.textContent=c;if(c===clVal)o.selected=true;fcl.appendChild(o);});
+}
+
+function renderLog(){
+  const fc=document.getElementById('filter-co').value;
+  const fl=document.getElementById('filter-cl').value;
+  const list=expenses.filter(e=>(!fc||e.company===fc)&&(!fl||e.claimant===fl));
+  const metrics=document.getElementById('logMetrics');
+  const logList=document.getElementById('logList');
+  const exportBtn=document.getElementById('exportBtn');
+  if(!list.length){metrics.innerHTML='';logList.innerHTML='<div class="empty">No expenses found.<br>Add your first expense to get started.</div>';exportBtn.style.display='none';return;}
+  exportBtn.style.display='block';
+  const total=list.reduce((s,e)=>s+e.amount,0);
+  const unclaimed=list.filter(e=>!e.claimed).reduce((s,e)=>s+e.amount,0);
+  metrics.innerHTML=`<div class="metric"><div class="metric-label">Total</div><div class="metric-val">${fmt(total)}</div></div><div class="metric"><div class="metric-label">Unclaimed</div><div class="metric-val warn">${fmt(unclaimed)}</div></div>`;
+  let html='<div class="exp-list">';
+  list.slice().reverse().forEach(e=>{
+    html+=`<div class="exp-item">
+      <div class="exp-top"><div class="exp-merchant">${e.merchant||'Unknown'}</div><div class="exp-amount">${fmt(e.amount)}</div></div>
+      <div class="exp-meta">${e.date} · ${e.category} · ${e.payment}</div>
+      ${e.notes?`<div class="exp-notes">${e.notes}</div>`:''}
+      <div class="exp-footer">
+        <span class="tag tag-co">${e.company}</span><span class="tag tag-cl">${e.claimant}</span>
+        ${e.claimed?'<span class="tag tag-done">Claimed</span>':''}
+        <label class="claimed-toggle"><input type="checkbox" ${e.claimed?'checked':''} onchange="toggleClaim(${e.id})"> Claimed</label>
+      </div>
+    </div>`;
+  });
+  html+='</div>';
+  logList.innerHTML=html;
+}
+
+function toggleClaim(id){const e=expenses.find(x=>x.id===id);if(e){e.claimed=!e.claimed;saveData();renderLog();}}
+
+function exportCSV(){
+  const fc=document.getElementById('filter-co').value;
+  const fl=document.getElementById('filter-cl').value;
+  const list=expenses.filter(e=>(!fc||e.company===fc)&&(!fl||e.claimant===fl));
+  const headers=['Date','Company','Claim From','Merchant','Amount (THB)','Category','Payment','Notes','Claimed'];
+  const rows=list.map(e=>[e.date,e.company,e.claimant,e.merchant,e.amount,e.category,e.payment,e.notes,e.claimed?'Yes':'No']);
+  const csv=[headers,...rows].map(r=>r.map(v=>`"${String(v||'').replace(/"/g,'""')}"`).join(',')).join('\n');
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));
+  a.download='expenses.csv';a.click();
+}
+
+function renderSummary(){
+  if(!expenses.length){document.getElementById('summaryContent').innerHTML='<div class="empty">No expenses yet.</div>';return;}
+  let html='';
+  html+='<div class="sum-section-title">By Company</div><div class="sum-list">';
+  companies.forEach(c=>{
+    const rows=expenses.filter(e=>e.company===c);if(!rows.length)return;
+    const total=rows.reduce((s,e)=>s+e.amount,0);
+    const unc=rows.filter(e=>!e.claimed).reduce((s,e)=>s+e.amount,0);
+    html+=`<div class="sum-row"><div class="sum-name">${c}</div><div class="sum-right"><div class="sum-total">${fmt(total)}</div><div class="sum-unclaimed">Unclaimed: ${fmt(unc)}</div></div></div>`;
+  });
+  html+='</div><div class="sum-section-title">By Claimant</div><div class="sum-list">';
+  claimants.forEach(c=>{
+    const rows=expenses.filter(e=>e.claimant===c);if(!rows.length)return;
+    const total=rows.reduce((s,e)=>s+e.amount,0);
+    const unc=rows.filter(e=>!e.claimed).reduce((s,e)=>s+e.amount,0);
+    html+=`<div class="sum-row"><div class="sum-name">${c}</div><div class="sum-right"><div class="sum-total">${fmt(total)}</div><div class="sum-unclaimed">Unclaimed: ${fmt(unc)}</div></div></div>`;
+  });
+  html+='</div>';
+  document.getElementById('summaryContent').innerHTML=html;
+}
+
+function renderSettings(){
+  document.getElementById('companiesList').innerHTML=companies.length
+    ?companies.map(c=>`<div class="settings-item"><span class="settings-item-name">${c}</span><button class="btn-remove" onclick="removeCompany('${c}')">Remove</button></div>`).join('')
+    :'<div style="padding:14px 16px;font-size:14px;color:var(--text3);">No companies added</div>';
+  document.getElementById('claimantsList').innerHTML=claimants.length
+    ?claimants.map(c=>`<div class="settings-item"><span class="settings-item-name">${c}</span><button class="btn-remove" onclick="removeClaimant('${c}')">Remove</button></div>`).join('')
+    :'<div style="padding:14px 16px;font-size:14px;color:var(--text3);">No claimants added</div>';
+}
+
+function addCompany(){const input=document.getElementById('newCompany');const name=input.value.trim();if(!name||companies.includes(name)){toast('Already exists or empty');return;}companies.push(name);saveSettings();input.value='';renderSettings();toast(name+' added');}
+function removeCompany(name){companies=companies.filter(c=>c!==name);saveSettings();renderSettings();toast(name+' removed');}
+function addClaimant(){const input=document.getElementById('newClaimant');const name=input.value.trim();if(!name||claimants.includes(name)){toast('Already exists or empty');return;}claimants.push(name);saveSettings();input.value='';renderSettings();toast(name+' added');}
+function removeClaimant(name){claimants=claimants.filter(c=>c!==name);saveSettings();renderSettings();toast(name+' removed');}
+function confirmClear(){document.getElementById('modalOverlay').classList.add('show');}
+function closeModal(){document.getElementById('modalOverlay').classList.remove('show');}
+function clearAllData(){expenses=[];saveData();closeModal();toast('All data cleared');}
+
+loadData();loadSettings();renderChips();
+</script>
+</body>
+</html>
