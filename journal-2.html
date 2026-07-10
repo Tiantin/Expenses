@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Journal">
+<title>Daily Journal</title>
+<style>
+:root{
+  --bg:#0f0f0f;--card:#1a1a1a;--card2:#222;--border:rgba(255,255,255,0.08);
+  --text:#f0ede8;--muted:#888;--hint:#444;
+  --accent:#c8a96e;--accent-dim:rgba(200,169,110,0.12);--accent-border:rgba(200,169,110,0.3);
+  --green:#4caf7d;--green-dim:rgba(76,175,125,0.12);--green-border:rgba(76,175,125,0.3);
+  --blue:#5b9cf6;--red:#e06c6c;
+  --safe-top:env(safe-area-inset-top,0px);--safe-bottom:env(safe-area-inset-bottom,0px);
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,'SF Pro Text',sans-serif;overflow:hidden}
+body{display:flex;flex-direction:column}
+
+.header{padding:calc(var(--safe-top) + 14px) 16px 0;flex-shrink:0}
+.header-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+.date-day{font-size:22px;font-weight:300;color:var(--text)}
+.date-sub{font-size:12px;color:var(--muted)}
+.hdr-btns{display:flex;gap:6px}
+.hdr-btn{font-size:12px;color:var(--muted);background:var(--card);border:1px solid var(--border);border-radius:20px;padding:5px 11px;cursor:pointer}
+.hdr-btn.accent{color:var(--accent);border-color:var(--accent-border);background:var(--accent-dim)}
+
+.tabs{display:flex;gap:6px;padding:0 16px 12px;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;flex-shrink:0}
+.tabs::-webkit-scrollbar{display:none}
+.tab{white-space:nowrap;font-size:13px;font-weight:500;padding:7px 15px;border-radius:20px;border:1px solid var(--border);background:transparent;color:var(--muted);cursor:pointer;transition:all .15s;flex-shrink:0}
+.tab.on{background:var(--accent-dim);color:var(--accent);border-color:var(--accent-border)}
+
+.scroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:0 16px calc(var(--safe-bottom) + 90px)}
+.sec{display:none}.sec.on{display:block}
+
+.group{margin-bottom:20px}
+.group-label{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.1em;color:var(--hint);margin-bottom:8px}
+
+.prompt-block{background:var(--card);border-radius:12px;margin-bottom:8px;overflow:hidden}
+.prompt-block:focus-within{border:1px solid var(--accent-border)}
+.prompt-q{font-size:13px;color:var(--text);padding:11px 13px 4px;line-height:1.4}
+.prompt-hint{font-size:11px;color:var(--muted);padding:0 13px 8px;line-height:1.4}
+textarea{
+  width:100%;background:transparent;border:none;outline:none;
+  font-size:14px;color:var(--text);font-family:inherit;
+  padding:6px 13px 11px;resize:none;line-height:1.5;
+  min-height:52px;
+}
+textarea::placeholder{color:var(--hint)}
+
+.rating-block{background:var(--card);border-radius:12px;padding:11px 13px;margin-bottom:8px}
+.rating-q{font-size:13px;color:var(--text);margin-bottom:8px}
+.stars{display:flex;gap:6px}
+.star{flex:1;height:34px;border-radius:8px;border:1px solid var(--border);background:transparent;color:var(--muted);font-size:13px;font-weight:500;cursor:pointer;transition:all .12s}
+.star.on{background:var(--accent-dim);color:var(--accent);border-color:var(--accent-border)}
+.yn{display:flex;gap:8px;margin-top:8px}
+.yn-btn{padding:7px 22px;border-radius:8px;border:1px solid var(--border);background:transparent;color:var(--muted);font-size:13px;font-weight:500;cursor:pointer;transition:all .12s}
+.yn-btn.yes{background:var(--green-dim);color:var(--green);border-color:var(--green-border)}
+.yn-btn.no{background:rgba(224,108,108,0.1);color:var(--red);border-color:rgba(224,108,108,0.2)}
+
+.mit-block{background:var(--card);border-radius:12px;margin-bottom:8px;overflow:hidden;display:flex;align-items:flex-start}
+.mit-num{font-size:22px;font-weight:200;color:var(--accent);padding:10px 4px 10px 13px;line-height:1.3}
+.mit-input{flex:1;background:transparent;border:none;outline:none;font-size:14px;color:var(--text);font-family:inherit;padding:12px 13px 12px 8px;line-height:1.4}
+.mit-input::placeholder{color:var(--hint)}
+
+.check-row{display:flex;align-items:flex-start;gap:12px;padding:10px 0;border-bottom:1px solid var(--border);cursor:pointer}
+.check-row:last-child{border-bottom:none}
+.cb{width:20px;height:20px;border-radius:6px;border:1.5px solid var(--hint);flex-shrink:0;margin-top:1px;display:flex;align-items:center;justify-content:center;transition:all .15s;font-size:12px;color:transparent}
+.check-row.done .cb{background:var(--green);border-color:var(--green);color:#fff}
+.check-row.done .cb-text{color:var(--hint);text-decoration:line-through}
+.cb-text{font-size:14px;color:var(--text);line-height:1.4}
+.cb-sub{font-size:11px;color:var(--muted);margin-top:2px}
+
+.step-card{background:var(--card);border-radius:12px;padding:12px 13px;margin-bottom:8px;border-left:3px solid var(--accent)}
+.step-title{font-size:13px;font-weight:600;color:var(--accent);margin-bottom:4px}
+.step-body{font-size:13px;color:var(--muted);line-height:1.5}
+.step-code{display:inline-block;background:#111;border:1px solid var(--border);border-radius:6px;padding:3px 8px;font-size:12px;font-family:monospace;color:var(--text);margin-top:4px}
+
+.tag{font-size:10px;font-weight:600;padding:2px 6px;border-radius:10px;display:inline-block;margin-left:4px;vertical-align:middle}
+.tag-r{background:rgba(224,108,108,0.12);color:var(--red)}
+.tag-g{background:var(--green-dim);color:var(--green)}
+
+/* Export toast */
+.toast{position:fixed;bottom:calc(var(--safe-bottom) + 20px);left:50%;transform:translateX(-50%) translateY(20px);background:#222;border:1px solid var(--accent-border);color:var(--accent);font-size:13px;padding:10px 20px;border-radius:20px;opacity:0;transition:all .3s;pointer-events:none;white-space:nowrap;z-index:99}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* Past entries panel */
+.panel{position:fixed;inset:0;background:var(--bg);z-index:50;display:flex;flex-direction:column;transform:translateX(100%);transition:transform .25s ease}
+.panel.open{transform:translateX(0)}
+.panel-header{padding:calc(var(--safe-top) + 14px) 16px 12px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;flex-shrink:0}
+.panel-title{font-size:17px;font-weight:500}
+.panel-close{font-size:13px;color:var(--accent);background:none;border:none;cursor:pointer;padding:4px 0}
+.panel-scroll{flex:1;overflow-y:auto;padding:16px}
+.entry-card{background:var(--card);border-radius:12px;padding:13px;margin-bottom:10px;cursor:pointer}
+.entry-date{font-size:13px;font-weight:500;color:var(--accent);margin-bottom:4px}
+.entry-preview{font-size:12px;color:var(--muted);line-height:1.4;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.entry-empty{text-align:center;color:var(--muted);font-size:14px;padding:40px 0}
+
+/* Sticky export bar */
+.export-bar{position:fixed;bottom:var(--safe-bottom);left:0;right:0;padding:10px 16px;background:var(--bg);border-top:1px solid var(--border);display:flex;gap:8px;flex-shrink:0}
+.exp-btn{flex:1;padding:11px;border-radius:10px;font-size:13px;font-weight:500;cursor:pointer;border:1px solid var(--border);background:var(--card);color:var(--muted);transition:all .12s}
+.exp-btn.primary{background:var(--accent-dim);color:var(--accent);border-color:var(--accent-border)}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-top">
+    <div>
+      <div class="date-day" id="dateday"></div>
+      <div class="date-sub" id="datesub"></div>
+    </div>
+    <div class="hdr-btns">
+      <button class="hdr-btn" onclick="openHistory()">History</button>
+      <button class="hdr-btn accent" onclick="saveEntry()">Save</button>
+    </div>
+  </div>
+  <div class="tabs">
+    <button class="tab on" onclick="show('journal',this)">📓 Journal</button>
+    <button class="tab" onclick="show('site',this)">🏗️ Site review</button>
+    <button class="tab" onclick="show('photos',this)">📷 Photos</button>
+  </div>
+</div>
+
+<div class="scroll">
+
+<!-- JOURNAL -->
+<div id="journal" class="sec on">
+
+  <div class="group">
+    <div class="group-label">🏆 Wins</div>
+    <div class="prompt-block">
+      <div class="prompt-q">What was the biggest win today — even a small one?</div>
+      <div class="prompt-hint">Evidence you moved forward. Build this list over time.</div>
+      <textarea id="j1" placeholder="Write here..." oninput="autosize(this)" rows="2"></textarea>
+    </div>
+    <div class="prompt-block">
+      <div class="prompt-q">What decision will your future self thank you for?</div>
+      <textarea id="j2" placeholder="Write here..." oninput="autosize(this)" rows="2"></textarea>
+    </div>
+  </div>
+
+  <div class="group">
+    <div class="group-label">💰 Financial</div>
+    <div class="prompt-block">
+      <div class="prompt-q">Any financial move, decision, or insight today?</div>
+      <div class="prompt-hint">Money spent, earned, considered, or avoided.</div>
+      <textarea id="j3" placeholder="Write here..." oninput="autosize(this)" rows="2"></textarea>
+    </div>
+    <div class="prompt-block">
+      <div class="prompt-q">What cost you time or money today that could be eliminated?</div>
+      <textarea id="j4" placeholder="Write here..." oninput="autosize(this)" rows="2"></textarea>
+    </div>
+  </div>
+
+  <div class="group">
+    <div class="group-label">🤝 People</div>
+    <div class="prompt-block">
+      <div class="prompt-q">Who added value to your day? Who drained it?</div>
+      <textarea id="j5" placeholder="Write here..." oninput="autosize(this)" rows="2"></textarea>
+    </div>
+    <div class="prompt-block">
+      <div class="prompt-q">Any relationship worth investing in or following up on?</div>
+      <textarea id="j6" placeholder="Write here..." oninput="autosize(this)" rows="2"></textarea>
+    </div>
+  </div>
+
+  <div class="group">
+    <div class="group-label">💡 Ideas</div>
+    <div class="prompt-block">
+      <div class="prompt-q">What idea or opportunity crossed your mind today?</div>
+      <div class="prompt-hint">No filter — even half-formed ones.</div>
+      <textarea id="j7" placeholder="Write here..." oninput="autosize(this)" rows="2"></textarea>
+    </div>
+  </div>
+
+  <div class="group">
+    <div class="group-label">🙏 Gratitude</div>
+    <div class="prompt-block">
+      <div class="prompt-q">2 specific things you're grateful for today</div>
+      <div class="prompt-hint">"Energy to train at 7pm" not "grateful for health."</div>
+      <textarea id="j8" placeholder="1. &#10;2. " oninput="autosize(this)" rows="3"></textarea>
+    </div>
+  </div>
+
+  <div class="group">
+    <div class="group-label">⚡ Energy check</div>
+    <div class="rating-block">
+      <div class="rating-q">Energy today</div>
+      <div class="stars" id="r-energy">
+        <button class="star" onclick="rate('r-energy',this)">1</button>
+        <button class="star" onclick="rate('r-energy',this)">2</button>
+        <button class="star" onclick="rate('r-energy',this)">3</button>
+        <button class="star" onclick="rate('r-energy',this)">4</button>
+        <button class="star" onclick="rate('r-energy',this)">5</button>
+      </div>
+    </div>
+    <div class="rating-block">
+      <div class="rating-q">Did you train today?</div>
+      <div class="yn">
+        <button class="yn-btn" id="yn-yes" onclick="setYN('yes')">Yes ✓</button>
+        <button class="yn-btn" id="yn-no" onclick="setYN('no')">No</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="group">
+    <div class="group-label">🎯 Tomorrow's MITs</div>
+    <div class="mit-block"><div class="mit-num">1</div><input class="mit-input" id="m1" placeholder="Most important task #1" type="text"></div>
+    <div class="mit-block"><div class="mit-num">2</div><input class="mit-input" id="m2" placeholder="Most important task #2" type="text"></div>
+    <div class="mit-block"><div class="mit-num">3</div><input class="mit-input" id="m3" placeholder="Most important task #3" type="text"></div>
+    <div class="prompt-block" style="margin-top:8px">
+      <div class="prompt-q">One sentence: what kind of day does tomorrow need to be?</div>
+      <textarea id="j9" placeholder="e.g. Tomorrow is a deep work day focused on the Citipac drawings." oninput="autosize(this)" rows="2"></textarea>
+    </div>
+  </div>
+</div>
+
+<!-- SITE REVIEW -->
+<div id="site" class="sec">
+
+  <div class="group">
+    <div class="group-label">✅ Progress</div>
+    <div class="prompt-block">
+      <div class="prompt-q">What was completed or progressed on site today?</div>
+      <div class="prompt-hint">Be specific — which area, trade, stage.</div>
+      <textarea id="s1" placeholder="Write here..." oninput="autosize(this)" rows="2"></textarea>
+    </div>
+    <div class="prompt-block">
+      <div class="prompt-q">How many workers on site? Were they productive?</div>
+      <textarea id="s2" placeholder="Write here..." oninput="autosize(this)" rows="2"></textarea>
+    </div>
+    <div class="rating-block">
+      <div class="rating-q">Overall site progress today</div>
+      <div class="stars" id="r-site">
+        <button class="star" onclick="rate('r-site',this)">1</button>
+        <button class="star" onclick="rate('r-site',this)">2</button>
+        <button class="star" onclick="rate('r-site',this)">3</button>
+        <button class="star" onclick="rate('r-site',this)">4</button>
+        <button class="star" onclick="rate('r-site',this)">5</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="group">
+    <div class="group-label">⚠️ Issues & blockers</div>
+    <div class="prompt-block">
+      <div class="prompt-q">Any problems, delays, or blockers today?</div>
+      <div class="prompt-hint">What caused it and who resolves it?</div>
+      <textarea id="s3" placeholder="Write here..." oninput="autosize(this)" rows="2"></textarea>
+    </div>
+    <div class="prompt-block">
+      <div class="prompt-q">Any safety observations or concerns?</div>
+      <textarea id="s4" placeholder="Write here..." oninput="autosize(this)" rows="2"></textarea>
+    </div>
+  </div>
+
+  <div class="group">
+    <div class="group-label">⚖️ Decisions made</div>
+    <div class="prompt-block">
+      <div class="prompt-q">What decisions were made on site today and by who?</div>
+      <div class="prompt-hint">Document everything — verbal decisions cause disputes.</div>
+      <textarea id="s5" placeholder="Write here..." oninput="autosize(this)" rows="2"></textarea>
+    </div>
+    <div class="prompt-block">
+      <div class="prompt-q">Materials ordered, delivered, or rejected today?</div>
+      <textarea id="s6" placeholder="Write here..." oninput="autosize(this)" rows="2"></textarea>
+    </div>
+  </div>
+
+  <div class="group">
+    <div class="group-label">📖 Learning</div>
+    <div class="prompt-block">
+      <div class="prompt-q">What did you learn or observe today that you didn't know before?</div>
+      <div class="prompt-hint">Construction knowledge compounds. Write even basic things.</div>
+      <textarea id="s7" placeholder="Write here..." oninput="autosize(this)" rows="2"></textarea>
+    </div>
+  </div>
+
+  <div class="group">
+    <div class="group-label">➡️ Tomorrow on site</div>
+    <div class="prompt-block">
+      <div class="prompt-q">What must happen on site tomorrow?</div>
+      <textarea id="s8" placeholder="Write here..." oninput="autosize(this)" rows="2"></textarea>
+    </div>
+    <div class="prompt-block">
+      <div class="prompt-q">Any supplier calls, deliveries, or inspections to confirm?</div>
+      <textarea id="s9" placeholder="Write here..." oninput="autosize(this)" rows="2"></textarea>
+    </div>
+  </div>
+</div>
+
+<!-- PHOTOS -->
+<div id="photos" class="sec">
+
+  <div class="group">
+    <div class="group-label">📸 What to photograph today</div>
+    <div class="check-row" onclick="tick(this)"><div class="cb">✓</div><div><div class="cb-text">Overview shot — same angle every day</div></div></div>
+    <div class="check-row" onclick="tick(this)"><div class="cb">✓</div><div><div class="cb-text">Work completed or in progress (close-up)</div></div></div>
+    <div class="check-row" onclick="tick(this)"><div class="cb">✓</div><div><div class="cb-text">Materials delivered or on site</div></div></div>
+    <div class="check-row" onclick="tick(this)"><div class="cb">✓</div><div><div class="cb-text">Any defect or issue — before it gets covered up</div><div class="cb-sub">Most important one to capture</div></div></div>
+    <div class="check-row" onclick="tick(this)"><div class="cb">✓</div><div><div class="cb-text">Decision point — before and after if possible</div></div></div>
+  </div>
+
+  <div class="group">
+    <div class="group-label">☁️ Upload workflow</div>
+    <div class="step-card">
+      <div class="step-title">Step 1 — Auto backup (set once, forget)</div>
+      <div class="step-body">Google Photos → Settings → Backup → On. Photos upload on Wi-Fi. Nothing to do daily.</div>
+    </div>
+    <div class="step-card">
+      <div class="step-title">Step 2 — Move to Citipac album</div>
+      <div class="step-body">Select today's site photos → Add to album → use this format:</div>
+      <div class="step-code">CITIPAC_[BUILDING]_YYYYMMDD</div>
+    </div>
+    <div class="step-card">
+      <div class="step-title">Step 3 — Caption any issues</div>
+      <div class="step-body">Tap photo → Edit → add description. Captions are searchable months later.</div>
+    </div>
+  </div>
+
+  <div class="group">
+    <div class="group-label">✅ Nightly photo checklist</div>
+    <div class="check-row" onclick="tick(this)"><div class="cb">✓</div><div><div class="cb-text">Photos taken on site today <span class="tag tag-r">required</span></div></div></div>
+    <div class="check-row" onclick="tick(this)"><div class="cb">✓</div><div><div class="cb-text">Backup confirmed in Google Photos <span class="tag tag-g">auto</span></div></div></div>
+    <div class="check-row" onclick="tick(this)"><div class="cb">✓</div><div><div class="cb-text">Photos moved to correct Citipac album</div></div></div>
+    <div class="check-row" onclick="tick(this)"><div class="cb">✓</div><div><div class="cb-text">Issue or defect photos captioned</div></div></div>
+    <div class="check-row" onclick="tick(this)"><div class="cb">✓</div><div><div class="cb-text">Notion site diary entry linked to album</div></div></div>
+  </div>
+</div>
+
+</div><!-- end scroll -->
+
+<!-- Export bar -->
+<div class="export-bar">
+  <button class="exp-btn" onclick="copyToClipboard()">Copy for Notion</button>
+  <button class="exp-btn primary" onclick="saveEntry()">Save entry</button>
+</div>
+
+<!-- History panel -->
+<div class="panel" id="history-panel">
+  <div class="panel-header">
+    <div class="panel-title">Past entries</div>
+    <button class="panel-close" onclick="closeHistory()">Close</button>
+  </div>
+  <div class="panel-scroll" id="history-list"></div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// Date
+const days=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+const months=['January','February','March','April','May','June','July','August','September','October','November','December'];
+const now=new Date();
+const todayKey='entry_'+now.toISOString().slice(0,10);
+document.getElementById('dateday').textContent=days[now.getDay()]+', '+now.getDate()+' '+months[now.getMonth()];
+document.getElementById('datesub').textContent=now.getFullYear()+' · Nightly review';
+
+// Tab switching
+function show(id,btn){
+  document.querySelectorAll('.sec').forEach(s=>s.classList.remove('on'));
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('on'));
+  document.getElementById(id).classList.add('on');
+  btn.classList.add('on');
+}
+
+// Autosize textareas
+function autosize(el){el.style.height='auto';el.style.height=el.scrollHeight+'px';}
+
+// Ratings
+function rate(groupId,btn){
+  document.querySelectorAll('#'+groupId+' .star').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');
+}
+function getRating(groupId){
+  const on=document.querySelector('#'+groupId+' .star.on');
+  return on?on.textContent:'—';
+}
+
+// Yes/No
+let ynVal='';
+function setYN(val){
+  ynVal=val;
+  document.getElementById('yn-yes').className='yn-btn'+(val==='yes'?' yes':'');
+  document.getElementById('yn-no').className='yn-btn'+(val==='no'?' no':'');
+}
+
+// Checklist
+function tick(row){row.classList.toggle('done');}
+
+// Toast
+function toast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2000);
+}
+
+// Collect all data
+function collectData(){
+  return{
+    date:now.toISOString().slice(0,10),
+    j1:document.getElementById('j1').value,
+    j2:document.getElementById('j2').value,
+    j3:document.getElementById('j3').value,
+    j4:document.getElementById('j4').value,
+    j5:document.getElementById('j5').value,
+    j6:document.getElementById('j6').value,
+    j7:document.getElementById('j7').value,
+    j8:document.getElementById('j8').value,
+    j9:document.getElementById('j9').value,
+    m1:document.getElementById('m1').value,
+    m2:document.getElementById('m2').value,
+    m3:document.getElementById('m3').value,
+    energy:getRating('r-energy'),
+    trained:ynVal||'—',
+    siteRating:getRating('r-site'),
+    s1:document.getElementById('s1').value,
+    s2:document.getElementById('s2').value,
+    s3:document.getElementById('s3').value,
+    s4:document.getElementById('s4').value,
+    s5:document.getElementById('s5').value,
+    s6:document.getElementById('s6').value,
+    s7:document.getElementById('s7').value,
+    s8:document.getElementById('s8').value,
+    s9:document.getElementById('s9').value,
+  };
+}
+
+// Save to localStorage
+function saveEntry(){
+  const data=collectData();
+  localStorage.setItem(todayKey,JSON.stringify(data));
+  toast('Entry saved ✓');
+}
+
+// Auto-save on input
+document.querySelectorAll('textarea,input[type=text]').forEach(el=>{
+  el.addEventListener('input',()=>{
+    const data=collectData();
+    localStorage.setItem(todayKey,JSON.stringify(data));
+  });
+});
+
+// Load today's saved entry
+function loadEntry(data){
+  const fields=['j1','j2','j3','j4','j5','j6','j7','j8','j9','s1','s2','s3','s4','s5','s6','s7','s8','s9'];
+  fields.forEach(id=>{
+    const el=document.getElementById(id);
+    if(el&&data[id]){el.value=data[id];autosize(el);}
+  });
+  ['m1','m2','m3'].forEach(id=>{
+    const el=document.getElementById(id);
+    if(el&&data[id])el.value=data[id];
+  });
+  if(data.energy&&data.energy!=='—'){
+    document.querySelectorAll('#r-energy .star').forEach(b=>{if(b.textContent===data.energy)b.classList.add('on');});
+  }
+  if(data.siteRating&&data.siteRating!=='—'){
+    document.querySelectorAll('#r-site .star').forEach(b=>{if(b.textContent===data.siteRating)b.classList.add('on');});
+  }
+  if(data.trained&&data.trained!=='—')setYN(data.trained);
+}
+
+// Load on start
+const saved=localStorage.getItem(todayKey);
+if(saved){try{loadEntry(JSON.parse(saved));}catch(e){}}
+
+// Format for Notion clipboard
+function formatForNotion(d){
+  const line=(label,val)=>val?`**${label}**\n${val}\n\n`:'';
+  return `# Journal — ${d.date}\n\n`+
+    `## Daily journal\n\n`+
+    line('Win of the day',d.j1)+
+    line('Decision for future self',d.j2)+
+    line('Financial insight',d.j3)+
+    line('What cost time/money',d.j4)+
+    line('People — adds/drains',d.j5)+
+    line('Relationship follow-up',d.j6)+
+    line('Idea today',d.j7)+
+    line('Gratitude',d.j8)+
+    `**Energy:** ${d.energy}/5 · **Trained:** ${d.trained}\n\n`+
+    `**Tomorrow's MITs**\n1. ${d.m1||'—'}\n2. ${d.m2||'—'}\n3. ${d.m3||'—'}\n\n`+
+    line('Tomorrow intention',d.j9)+
+    `## Site review — Citipac\n\n`+
+    line('Progress today',d.s1)+
+    line('Workers & productivity',d.s2)+
+    `**Site rating:** ${d.siteRating}/5\n\n`+
+    line('Issues & blockers',d.s3)+
+    line('Safety observations',d.s4)+
+    line('Decisions made',d.s5)+
+    line('Materials',d.s6)+
+    line('Learning',d.s7)+
+    line('Tomorrow on site',d.s8)+
+    line('Confirmations needed',d.s9);
+}
+
+function copyToClipboard(){
+  const data=collectData();
+  const text=formatForNotion(data);
+  if(navigator.clipboard&&navigator.clipboard.writeText){
+    navigator.clipboard.writeText(text).then(()=>toast('Copied — paste into Notion ✓'));
+  } else {
+    const ta=document.createElement('textarea');
+    ta.value=text;ta.style.position='fixed';ta.style.opacity='0';
+    document.body.appendChild(ta);ta.select();
+    document.execCommand('copy');
+    document.body.removeChild(ta);
+    toast('Copied — paste into Notion ✓');
+  }
+}
+
+// History panel
+function openHistory(){
+  const list=document.getElementById('history-list');
+  list.innerHTML='';
+  const keys=[];
+  for(let i=0;i<localStorage.length;i++){
+    const k=localStorage.key(i);
+    if(k&&k.startsWith('entry_'))keys.push(k);
+  }
+  keys.sort().reverse();
+  if(keys.length===0){
+    list.innerHTML='<div class="entry-empty">No past entries yet.<br>Save tonight\'s entry to start.</div>';
+  } else {
+    keys.forEach(k=>{
+      try{
+        const d=JSON.parse(localStorage.getItem(k));
+        const card=document.createElement('div');
+        card.className='entry-card';
+        const preview=d.j1||d.s1||'No content';
+        card.innerHTML=`<div class="entry-date">${d.date}</div><div class="entry-preview">${preview}</div>`;
+        card.onclick=()=>viewEntry(d);
+        list.appendChild(card);
+      }catch(e){}
+    });
+  }
+  document.getElementById('history-panel').classList.add('open');
+}
+
+function closeHistory(){document.getElementById('history-panel').classList.remove('open');}
+
+function viewEntry(d){
+  closeHistory();
+  const text=formatForNotion(d);
+  if(navigator.clipboard&&navigator.clipboard.writeText){
+    navigator.clipboard.writeText(text).then(()=>toast('Entry copied ✓'));
+  }
+}
+</script>
+</body>
+</html>
