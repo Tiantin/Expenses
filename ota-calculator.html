@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OTA Rate Calculator — Tans Apartment</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap');
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --navy:    #1a2744;
+    --navy2:   #243358;
+    --blue:    #2d5be3;
+    --blue-lt: #e8eefb;
+    --teal:    #0d9e8a;
+    --teal-lt: #e6f7f5;
+    --amber:   #f59e0b;
+    --amber-lt:#fef3c7;
+    --red:     #e53e3e;
+    --grey0:   #f7f8fa;
+    --grey1:   #edf0f4;
+    --grey2:   #d1d9e6;
+    --grey3:   #8c9ab5;
+    --text:    #1a2744;
+    --text2:   #4a5578;
+    --white:   #ffffff;
+    --radius:  10px;
+    --shadow:  0 2px 12px rgba(26,39,68,.10);
+    --shadow-lg: 0 8px 32px rgba(26,39,68,.14);
+  }
+
+  body {
+    font-family: 'Inter', sans-serif;
+    background: var(--grey0);
+    color: var(--text);
+    min-height: 100vh;
+  }
+
+  /* ── HEADER ── */
+  header {
+    background: var(--navy);
+    padding: 0 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 64px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: var(--shadow-lg);
+  }
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .logo-icon {
+    width: 36px; height: 36px;
+    background: var(--blue);
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px;
+  }
+  .logo-text { color: var(--white); font-weight: 700; font-size: 15px; letter-spacing: -.2px; }
+  .logo-sub  { color: var(--grey3); font-size: 11px; font-weight: 400; }
+  .header-badge {
+    background: var(--teal);
+    color: var(--white);
+    font-size: 11px;
+    font-weight: 600;
+    padding: 4px 10px;
+    border-radius: 20px;
+    letter-spacing: .5px;
+  }
+
+  /* ── LAYOUT ── */
+  main { max-width: 1100px; margin: 0 auto; padding: 32px 24px 64px; }
+
+  /* ── INTRO BANNER ── */
+  .intro {
+    background: linear-gradient(135deg, var(--navy) 0%, var(--navy2) 100%);
+    border-radius: var(--radius);
+    padding: 28px 32px;
+    margin-bottom: 28px;
+    display: flex;
+    align-items: center;
+    gap: 24px;
+  }
+  .intro-icon { font-size: 40px; flex-shrink: 0; }
+  .intro h1  { color: var(--white); font-size: 22px; font-weight: 700; margin-bottom: 4px; }
+  .intro p   { color: var(--grey2); font-size: 13px; line-height: 1.6; }
+  .intro strong { color: var(--amber); }
+
+  /* ── SECTION LABELS ── */
+  .section-label {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1.2px;
+    text-transform: uppercase;
+    color: var(--grey3);
+    margin-bottom: 10px;
+    margin-top: 28px;
+  }
+
+  /* ── ROOMS GRID ── */
+  .rooms-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin-bottom: 28px;
+  }
+
+  .room-card {
+    background: var(--white);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    overflow: hidden;
+    border: 2px solid transparent;
+    transition: border-color .2s, box-shadow .2s;
+  }
+  .room-card:focus-within {
+    border-color: var(--blue);
+    box-shadow: 0 0 0 4px rgba(45,91,227,.10);
+  }
+  .room-card-header {
+    background: var(--navy);
+    padding: 12px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .room-name { color: var(--white); font-weight: 700; font-size: 18px; }
+  .room-tag  {
+    background: rgba(255,255,255,.12);
+    color: var(--grey2);
+    font-size: 10px;
+    font-weight: 600;
+    padding: 3px 8px;
+    border-radius: 12px;
+    letter-spacing: .4px;
+  }
+  .room-card-body { padding: 16px; }
+  .net-label {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--grey3);
+    text-transform: uppercase;
+    letter-spacing: .8px;
+    margin-bottom: 8px;
+  }
+  .net-input-wrap {
+    display: flex;
+    align-items: center;
+    background: var(--amber-lt);
+    border: 2px solid var(--amber);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  .net-currency {
+    padding: 0 10px;
+    font-weight: 700;
+    font-size: 16px;
+    color: var(--amber);
+    flex-shrink: 0;
+  }
+  .net-input {
+    border: none;
+    background: transparent;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 22px;
+    font-weight: 600;
+    color: var(--text);
+    width: 100%;
+    padding: 10px 8px 10px 0;
+    outline: none;
+  }
+  .net-input::-webkit-inner-spin-button,
+  .net-input::-webkit-outer-spin-button { -webkit-appearance: none; }
+
+  /* ── RESULTS TABLE ── */
+  .results-card {
+    background: var(--white);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    overflow: hidden;
+    margin-bottom: 28px;
+  }
+  .results-card-header {
+    background: var(--navy);
+    padding: 14px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .results-card-header h2 { color: var(--white); font-size: 14px; font-weight: 600; }
+  .results-card-header span { color: var(--grey3); font-size: 12px; }
+
+  table { width: 100%; border-collapse: collapse; }
+  thead th {
+    background: var(--grey0);
+    padding: 10px 16px;
+    text-align: center;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--grey3);
+    text-transform: uppercase;
+    letter-spacing: .8px;
+    border-bottom: 2px solid var(--grey1);
+  }
+  thead th:first-child { text-align: left; }
+  tbody tr { border-bottom: 1px solid var(--grey1); transition: background .15s; }
+  tbody tr:last-child { border-bottom: none; }
+  tbody tr:hover { background: var(--grey0); }
+
+  td {
+    padding: 13px 16px;
+    font-size: 13px;
+    text-align: center;
+    vertical-align: middle;
+  }
+  td:first-child { text-align: left; }
+
+  .ota-cell {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .ota-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .ota-name { font-weight: 600; font-size: 13px; }
+  .ota-comm { font-size: 11px; color: var(--grey3); }
+
+  .gross-val {
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 600;
+    font-size: 14px;
+    color: var(--text);
+  }
+  .gross-val.highlight {
+    background: var(--teal-lt);
+    color: var(--teal);
+    padding: 4px 10px;
+    border-radius: 6px;
+    display: inline-block;
+  }
+  .net-check {
+    font-size: 11px;
+    color: var(--teal);
+    font-weight: 600;
+  }
+
+  /* ── COMMISSION EDITOR ── */
+  .comm-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 12px;
+    margin-bottom: 28px;
+  }
+  .comm-card {
+    background: var(--white);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 14px;
+    border-top: 3px solid var(--grey2);
+    transition: border-color .2s;
+  }
+  .comm-card:focus-within { border-color: var(--blue); }
+  .comm-name { font-size: 11px; font-weight: 700; color: var(--grey3); text-transform: uppercase; letter-spacing: .6px; margin-bottom: 8px; }
+  .comm-input-wrap {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    background: var(--blue-lt);
+    border: 1.5px solid var(--blue);
+    border-radius: 6px;
+    padding: 6px 10px;
+  }
+  .comm-input {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--blue);
+    border: none;
+    background: transparent;
+    width: 100%;
+    outline: none;
+  }
+  .comm-input::-webkit-inner-spin-button { -webkit-appearance: none; }
+  .comm-pct { color: var(--blue); font-weight: 700; font-size: 14px; }
+  .comm-multiplier { font-size: 11px; color: var(--grey3); margin-top: 6px; }
+  .comm-multiplier span { font-family: 'JetBrains Mono', monospace; font-weight: 600; color: var(--text2); }
+
+  /* ── BEDS24 REFERENCE ── */
+  .beds-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+    margin-bottom: 28px;
+  }
+  .beds-card {
+    background: var(--white);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 16px;
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+  }
+  .beds-icon {
+    width: 36px; height: 36px;
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px;
+    flex-shrink: 0;
+  }
+  .beds-content {}
+  .beds-ota { font-size: 12px; font-weight: 700; color: var(--text); margin-bottom: 2px; }
+  .beds-mult {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    font-weight: 600;
+    color: #7c3aed;
+    background: #f5f3ff;
+    padding: 3px 8px;
+    border-radius: 5px;
+    display: inline-block;
+    margin-bottom: 4px;
+  }
+  .beds-note { font-size: 11px; color: var(--grey3); line-height: 1.5; }
+
+  /* ── LEGEND ── */
+  .legend {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+    padding: 14px 16px;
+    background: var(--white);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    font-size: 12px;
+    color: var(--text2);
+  }
+  .legend-item { display: flex; align-items: center; gap: 7px; }
+  .legend-swatch { width: 14px; height: 14px; border-radius: 3px; flex-shrink: 0; }
+
+  /* ── FOOTER ── */
+  footer {
+    text-align: center;
+    padding: 20px;
+    font-size: 11px;
+    color: var(--grey3);
+    border-top: 1px solid var(--grey1);
+    margin-top: 40px;
+  }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 768px) {
+    .rooms-grid { grid-template-columns: 1fr; }
+    .comm-grid  { grid-template-columns: repeat(2, 1fr); }
+    .beds-grid  { grid-template-columns: 1fr; }
+    .intro      { flex-direction: column; gap: 12px; }
+    main        { padding: 20px 16px 48px; }
+    header      { padding: 0 16px; }
+    td, th      { padding: 10px 10px; font-size: 12px; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <div class="logo-icon">🏨</div>
+    <div>
+      <div class="logo-text">OTA Rate Calculator</div>
+      <div class="logo-sub">Tans Apartment — E Block</div>
+    </div>
+  </div>
+  <div class="header-badge">LIVE</div>
+</header>
+
+<main>
+
+  <!-- INTRO -->
+  <div class="intro">
+    <div class="intro-icon">💡</div>
+    <div>
+      <h1>Set your net target. See every OTA gross rate instantly.</h1>
+      <p>
+        Enter the <strong>amount you want to receive</strong> per room per night below.
+        All OTA gross rates update in real time, accounting for each platform's commission.
+        Edit commission rates if they change. Use the Beds24 multiplier reference to configure your channel manager.
+      </p>
+    </div>
+  </div>
+
+  <!-- ROOM NET INPUTS -->
+  <div class="section-label">1 — Set Net Target per Room</div>
+  <div class="rooms-grid" id="rooms-grid">
+    <!-- injected by JS -->
+  </div>
+
+  <!-- RESULTS TABLE -->
+  <div class="section-label">2 — OTA Gross Rates (what to charge each platform)</div>
+  <div class="results-card">
+    <div class="results-card-header">
+      <h2>Gross Rate by OTA &amp; Room</h2>
+      <span>Gross = Net ÷ (1 − Commission)</span>
+    </div>
+    <div style="overflow-x:auto;">
+      <table id="results-table">
+        <thead>
+          <tr id="table-head"></tr>
+        </thead>
+        <tbody id="table-body"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- COMMISSION EDITOR -->
+  <div class="section-label">3 — Commission Rates (edit if your rates change)</div>
+  <div class="comm-grid" id="comm-grid">
+    <!-- injected by JS -->
+  </div>
+
+  <!-- BEDS24 REFERENCE -->
+  <div class="section-label">4 — Beds24 Multiplier Reference</div>
+  <div class="beds-grid" id="beds-grid">
+    <!-- injected by JS -->
+  </div>
+
+  <!-- LEGEND -->
+  <div class="legend">
+    <div class="legend-item">
+      <div class="legend-swatch" style="background:var(--amber-lt);border:1.5px solid var(--amber);"></div>
+      Yellow = your input (Net Target)
+    </div>
+    <div class="legend-item">
+      <div class="legend-swatch" style="background:var(--blue-lt);border:1.5px solid var(--blue);"></div>
+      Blue = editable commission rate
+    </div>
+    <div class="legend-item">
+      <div class="legend-swatch" style="background:var(--teal-lt);border:1.5px solid var(--teal);"></div>
+      Green = auto-calculated gross rate
+    </div>
+    <div class="legend-item">
+      <div class="legend-swatch" style="background:#f5f3ff;border:1.5px solid #7c3aed;"></div>
+      Purple = Beds24 multiplier to append to hotel ID
+    </div>
+  </div>
+
+</main>
+
+<footer>
+  OTA Rate Calculator · Tans Apartment E Block · Phuket, Thailand · All prices in THB ฿
+</footer>
+
+<script>
+// ── DATA ──
+const rooms = [
+  { id: 'E1', tag: 'Tans Apartment' },
+  { id: 'E2', tag: 'Tans Apartment' },
+  { id: 'E3', tag: 'Tans Apartment' },
+];
+
+const otas = [
+  { id: 'bdc',      name: 'Booking.com', comm: 20.5, color: '#003580', beds24: 'rate-plan', note: 'Set via Beds24 Rate Plan — no hotel ID multiplier needed' },
+  { id: 'airbnb',   name: 'Airbnb',      comm: 15.5, color: '#FF5A5F', beds24: 'daily-price', note: 'Set via Beds24 Daily Price Rule — no hotel ID multiplier' },
+  { id: 'expedia',  name: 'Expedia',     comm: 15.0, color: '#FFC72C', beds24: 'rate-plan', note: 'Set via Beds24 Rate Plan — no hotel ID multiplier needed' },
+  { id: 'traveloka',name: 'Traveloka',   comm: 15.0, color: '#0064D2', beds24: 'multiplier', note: 'Append multiplier to Hotel Code in Beds24 → Channel Manager → Traveloka' },
+  { id: 'trip',     name: 'Trip.com',    comm: 15.0, color: '#1890FF', beds24: 'multiplier', note: 'Append multiplier to Hotel ID in Beds24 → Channel Manager → Trip' },
+];
+
+// State
+const netValues = {};
+rooms.forEach(r => netValues[r.id] = 1000);
+
+const commValues = {};
+otas.forEach(o => commValues[o.id] = o.comm);
+
+// ── HELPERS ──
+function gross(net, commPct) {
+  return Math.round(net / (1 - commPct / 100));
+}
+function multiplier(commPct) {
+  return (1 / (1 - commPct / 100)).toFixed(3);
+}
+function fmt(n) {
+  return '฿' + n.toLocaleString();
+}
+
+// ── BUILD ROOMS ──
+function buildRooms() {
+  const grid = document.getElementById('rooms-grid');
+  grid.innerHTML = '';
+  rooms.forEach(r => {
+    const card = document.createElement('div');
+    card.className = 'room-card';
+    card.innerHTML = `
+      <div class="room-card-header">
+        <span class="room-name">${r.id}</span>
+        <span class="room-tag">${r.tag}</span>
+      </div>
+      <div class="room-card-body">
+        <div class="net-label">Net Target / night</div>
+        <div class="net-input-wrap">
+          <span class="net-currency">฿</span>
+          <input class="net-input" type="number" id="net-${r.id}" value="${netValues[r.id]}" min="0" step="100">
+        </div>
+      </div>
+    `;
+    grid.appendChild(card);
+    document.getElementById(`net-${r.id}`).addEventListener('input', e => {
+      netValues[r.id] = parseFloat(e.target.value) || 0;
+      updateTable();
+      updateBeds24();
+    });
+  });
+}
+
+// ── BUILD TABLE ──
+function buildTable() {
+  // Header
+  const thead = document.getElementById('table-head');
+  thead.innerHTML = `<th>OTA · Commission</th>` +
+    rooms.map(r => `<th>${r.id}<br><span style="font-weight:400;color:var(--grey3);font-size:10px;">Gross Rate</span></th>`).join('') +
+    `<th>Net You Receive</th>`;
+
+  updateTable();
+}
+
+function updateTable() {
+  const tbody = document.getElementById('table-body');
+  tbody.innerHTML = '';
+  otas.forEach(o => {
+    const comm = commValues[o.id];
+    const tr = document.createElement('tr');
+    let cells = `
+      <td>
+        <div class="ota-cell">
+          <div class="ota-dot" style="background:${o.color}"></div>
+          <div>
+            <div class="ota-name">${o.name}</div>
+            <div class="ota-comm">${comm}% commission</div>
+          </div>
+        </div>
+      </td>
+    `;
+    rooms.forEach(r => {
+      const g = gross(netValues[r.id], comm);
+      cells += `<td><span class="gross-val highlight">${fmt(g)}</span></td>`;
+    });
+    // Net check (use E1 as reference)
+    const refNet = netValues['E1'];
+    const g1 = gross(refNet, comm);
+    const actualNet = Math.round(g1 * (1 - comm / 100));
+    cells += `<td><span class="net-check">≈ ${fmt(actualNet)}</span></td>`;
+    tr.innerHTML = cells;
+    tbody.appendChild(tr);
+  });
+}
+
+// ── BUILD COMMISSION EDITOR ──
+function buildComm() {
+  const grid = document.getElementById('comm-grid');
+  grid.innerHTML = '';
+  otas.forEach(o => {
+    const card = document.createElement('div');
+    card.className = 'comm-card';
+    card.style.borderTopColor = o.color;
+    card.innerHTML = `
+      <div class="comm-name">${o.name}</div>
+      <div class="comm-input-wrap">
+        <input class="comm-input" type="number" id="comm-${o.id}" value="${commValues[o.id]}" min="0" max="50" step="0.5">
+        <span class="comm-pct">%</span>
+      </div>
+      <div class="comm-multiplier">Multiplier: <span id="mul-${o.id}">${multiplier(commValues[o.id])}</span></div>
+    `;
+    grid.appendChild(card);
+    document.getElementById(`comm-${o.id}`).addEventListener('input', e => {
+      const val = parseFloat(e.target.value) || 0;
+      commValues[o.id] = val;
+      document.getElementById(`mul-${o.id}`).textContent = multiplier(val);
+      updateTable();
+      updateBeds24();
+    });
+  });
+}
+
+// ── BUILD BEDS24 REFERENCE ──
+function buildBeds24() {
+  const grid = document.getElementById('beds-grid');
+  grid.innerHTML = '';
+
+  const icons = { bdc: '🏨', airbnb: '🏠', expedia: '✈️', traveloka: '🔵', trip: '🟦' };
+
+  otas.forEach(o => {
+    const card = document.createElement('div');
+    card.className = 'beds-card';
+    const isMulti = o.beds24 === 'multiplier';
+    const mul = multiplier(commValues[o.id]);
+
+    card.innerHTML = `
+      <div class="beds-icon" style="background:${o.color}22;">${icons[o.id]}</div>
+      <div class="beds-content">
+        <div class="beds-ota">${o.name}</div>
+        ${isMulti
+          ? `<div class="beds-mult" id="beds-mul-${o.id}">*${mul}</div>`
+          : `<div style="font-size:11px;color:var(--teal);font-weight:600;margin-bottom:4px;">✓ No hotel ID multiplier needed</div>`
+        }
+        <div class="beds-note">${o.note}</div>
+      </div>
+    `;
+    grid.appendChild(card);
+  });
+}
+
+function updateBeds24() {
+  otas.forEach(o => {
+    const el = document.getElementById(`beds-mul-${o.id}`);
+    if (el) el.textContent = '*' + multiplier(commValues[o.id]);
+  });
+}
+
+// ── INIT ──
+buildRooms();
+buildComm();
+buildTable();
+buildBeds24();
+</script>
+</body>
+</html>
