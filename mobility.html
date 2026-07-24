@@ -1,0 +1,817 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0F1F1D">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Range">
+<meta name="description" content="30-day mobility and movement program for anterior pelvic tilt, ankle mobility and flow.">
+<title>Range — 30 day mobility program</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@75..125,400..700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#0F1F1D;
+  --ink-2:#16302C;
+  --ink-3:#1E403A;
+  --line:#2B4F48;
+  --bone:#EFE9DC;
+  --bone-2:#A6B5AF;
+  --bone-3:#6F827C;
+  --ochre:#E0A82E;
+  --jade:#57C79C;
+  --clay:#D2694A;
+  --sans:'Archivo',system-ui,-apple-system,'Segoe UI',sans-serif;
+  --mono:'IBM Plex Mono',ui-monospace,'SF Mono',Menlo,monospace;
+  --wrap:640px;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0}
+body{
+  background:var(--ink);color:var(--bone);
+  font-family:var(--sans);font-size:16px;line-height:1.55;
+  font-variation-settings:'wdth' 100;
+  padding-bottom:calc(88px + env(safe-area-inset-bottom));
+  -webkit-font-smoothing:antialiased;
+}
+.wrap{max-width:var(--wrap);margin:0 auto;padding:0 20px}
+
+/* ---------- header ---------- */
+.masthead{
+  display:flex;align-items:baseline;justify-content:space-between;
+  padding:calc(18px + env(safe-area-inset-top)) 0 14px;
+  border-bottom:1px solid var(--line);
+}
+.mark{
+  font-family:var(--sans);font-weight:700;font-size:19px;letter-spacing:.14em;
+  font-variation-settings:'wdth' 118;text-transform:uppercase;
+}
+.mark span{color:var(--ochre)}
+.mast-sub{font-family:var(--mono);font-size:11px;letter-spacing:.1em;color:var(--bone-3);text-transform:uppercase}
+
+/* ---------- goniometer ---------- */
+.gonio{padding:26px 0 6px;text-align:center}
+.gonio svg{width:212px;height:auto;display:block;margin:0 auto}
+.gonio-read{margin-top:-58px;position:relative}
+.gonio-pct{font-family:var(--mono);font-weight:600;font-size:38px;line-height:1;letter-spacing:-.02em}
+.gonio-cap{font-family:var(--mono);font-size:10px;letter-spacing:.16em;color:var(--bone-3);text-transform:uppercase;margin-top:6px}
+
+.dayhead{text-align:center;padding:22px 0 4px}
+.daynum{font-family:var(--mono);font-size:11px;letter-spacing:.18em;color:var(--ochre);text-transform:uppercase}
+.daytitle{
+  font-weight:700;font-size:30px;line-height:1.1;letter-spacing:-.01em;margin:8px 0 0;
+  font-variation-settings:'wdth' 112;
+}
+.daysub{color:var(--bone-2);font-size:15px;margin-top:6px}
+.focus{
+  margin:18px 0 0;padding:13px 15px;background:var(--ink-2);
+  border-left:2px solid var(--ochre);border-radius:0;
+  font-size:14px;color:var(--bone-2);line-height:1.5;
+}
+.focus b{color:var(--bone);font-weight:600}
+
+/* ---------- blocks ---------- */
+.block{margin-top:30px}
+.block-head{display:flex;align-items:center;gap:11px;padding-bottom:9px;border-bottom:1px solid var(--line)}
+.block-n{font-family:var(--mono);font-size:12px;font-weight:600;color:var(--ochre)}
+.block-name{font-weight:600;font-size:13px;letter-spacing:.11em;text-transform:uppercase;flex:1;font-variation-settings:'wdth' 108}
+.block-min{font-family:var(--mono);font-size:12px;color:var(--bone-3)}
+
+.item{display:flex;align-items:flex-start;gap:6px;border-bottom:1px solid rgba(43,79,72,.5)}
+.item:last-child{border-bottom:0}
+.item-main{
+  flex:1;min-width:0;display:flex;align-items:flex-start;gap:13px;
+  padding:14px 2px;background:none;border:0;color:inherit;font:inherit;text-align:left;cursor:pointer;
+}
+.item-main:focus-visible{outline:2px solid var(--ochre);outline-offset:-2px}
+.demo{
+  flex:0 0 auto;margin:13px 0 0;padding:8px 10px;border:1px solid var(--line);border-radius:4px;
+  color:var(--bone-3);display:grid;place-items:center;text-decoration:none;
+  transition:border-color .15s,color .15s;
+}
+.demo:hover{border-color:var(--ochre);color:var(--ochre)}
+.demo:focus-visible{outline:2px solid var(--ochre);outline-offset:2px}
+.demo svg{width:10px;height:11px;display:block}
+.tick{
+  flex:0 0 21px;width:21px;height:21px;margin-top:2px;border:1.5px solid var(--line);
+  border-radius:3px;display:grid;place-items:center;transition:background .15s,border-color .15s;
+}
+.tick svg{width:12px;height:12px;opacity:0;transform:scale(.6);transition:opacity .15s,transform .15s}
+.item.on .tick{background:var(--jade);border-color:var(--jade)}
+.item.on .tick svg{opacity:1;transform:scale(1)}
+.item-body{flex:1;min-width:0}
+.item-body>span{display:block}
+.item-name{font-size:15.5px;line-height:1.35;transition:color .15s}
+.item.on .item-name{color:var(--bone-3);text-decoration:line-through;text-decoration-color:var(--bone-3)}
+.item-dose{font-family:var(--mono);font-size:12px;color:var(--ochre);margin-top:4px;letter-spacing:.02em}
+.item.on .item-dose{color:var(--bone-3)}
+.item-note{font-size:13px;color:var(--bone-2);margin-top:6px;line-height:1.45}
+
+.dayfoot{display:flex;gap:10px;margin:32px 0 8px}
+.btn{
+  flex:1;padding:14px;background:none;border:1px solid var(--line);color:var(--bone-2);
+  font-family:var(--mono);font-size:12px;letter-spacing:.1em;text-transform:uppercase;
+  cursor:pointer;border-radius:4px;transition:border-color .15s,color .15s;
+}
+.btn:hover{border-color:var(--bone-3);color:var(--bone)}
+.btn:disabled{opacity:.3;cursor:default;border-color:var(--line);color:var(--bone-3)}
+.btn:focus-visible{outline:2px solid var(--ochre);outline-offset:2px}
+.btn-go{border-color:var(--ochre);color:var(--ochre)}
+.btn-go:hover{background:var(--ochre);color:var(--ink);border-color:var(--ochre)}
+
+/* ---------- calendar ---------- */
+.weekband{
+  display:flex;align-items:baseline;gap:10px;margin:30px 0 12px;
+  padding-bottom:8px;border-bottom:1px solid var(--line);
+}
+.weekband:first-child{margin-top:22px}
+.week-n{font-family:var(--mono);font-size:11px;letter-spacing:.16em;color:var(--ochre);text-transform:uppercase}
+.week-t{font-size:14px;color:var(--bone-2);flex:1}
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:9px}
+.cell{
+  background:var(--ink-2);border:1px solid transparent;border-radius:6px;padding:11px 8px 9px;
+  display:flex;flex-direction:column;align-items:center;gap:5px;cursor:pointer;
+  font:inherit;color:inherit;transition:border-color .15s,background .15s;
+}
+.cell:hover{background:var(--ink-3)}
+.cell:focus-visible{outline:2px solid var(--ochre);outline-offset:2px}
+.cell.now{border-color:var(--ochre)}
+.cell-d{font-family:var(--mono);font-size:11px;color:var(--bone-3)}
+.cell-s{font-family:var(--mono);font-size:14px;font-weight:600;letter-spacing:.04em}
+.cell.done .cell-s{color:var(--jade)}
+.cell svg{width:38px;height:23px}
+
+/* ---------- numbers ---------- */
+.mtable{width:100%;border-collapse:collapse;margin-top:16px}
+.mtable th{
+  font-family:var(--mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--bone-3);font-weight:500;text-align:center;padding:0 0 10px;border-bottom:1px solid var(--line);
+}
+.mtable th:first-child{text-align:left}
+.mtable td{padding:9px 0;border-bottom:1px solid rgba(43,79,72,.5);vertical-align:middle}
+.mtable td:first-child{font-size:14px;line-height:1.35;padding-right:10px}
+.munit{font-family:var(--mono);font-size:11px;color:var(--bone-3);display:block}
+.minput{
+  width:100%;max-width:66px;background:var(--ink-2);border:1px solid var(--line);border-radius:4px;
+  color:var(--bone);font-family:var(--mono);font-size:14px;padding:8px 4px;text-align:center;
+}
+.minput:focus{outline:2px solid var(--ochre);outline-offset:1px;border-color:var(--ochre)}
+
+/* ---------- guide ---------- */
+.g-h{
+  font-weight:700;font-size:20px;margin:30px 0 10px;letter-spacing:-.005em;
+  font-variation-settings:'wdth' 110;
+}
+.g-h:first-child{margin-top:22px}
+.g-p{font-size:15px;color:var(--bone-2);line-height:1.65;margin:0 0 13px}
+.g-p b{color:var(--bone);font-weight:600}
+.g-l{margin:0 0 13px;padding-left:19px;color:var(--bone-2);font-size:15px;line-height:1.6}
+.g-l li{margin-bottom:7px}
+.g-l li::marker{color:var(--ochre)}
+.g-call{
+  background:var(--ink-2);border-left:2px solid var(--clay);padding:14px 16px;margin:0 0 16px;
+  font-size:14.5px;color:var(--bone-2);line-height:1.6;
+}
+.g-call b{color:var(--bone);font-weight:600}
+
+/* ---------- nav ---------- */
+.nav{
+  position:fixed;left:0;right:0;bottom:0;z-index:20;
+  background:rgba(15,31,29,.94);backdrop-filter:blur(12px);
+  border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom);
+}
+.nav-in{max-width:var(--wrap);margin:0 auto;display:grid;grid-template-columns:repeat(4,1fr)}
+.tab{
+  background:none;border:0;padding:13px 4px 14px;cursor:pointer;color:var(--bone-3);
+  font-family:var(--mono);font-size:10.5px;letter-spacing:.13em;text-transform:uppercase;
+  border-top:2px solid transparent;margin-top:-1px;transition:color .15s,border-color .15s;
+}
+.tab:focus-visible{outline:2px solid var(--ochre);outline-offset:-4px}
+.tab.on{color:var(--ochre);border-top-color:var(--ochre)}
+
+.view{display:none;padding-bottom:34px}
+.view.on{display:block}
+.viewhead{padding:26px 0 2px}
+.viewhead h2{
+  font-weight:700;font-size:26px;margin:0;letter-spacing:-.01em;font-variation-settings:'wdth' 112;
+}
+.viewhead p{color:var(--bone-2);font-size:14.5px;margin:7px 0 0;line-height:1.5}
+
+.saveflag{
+  font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;color:var(--bone-3);
+  text-transform:uppercase;text-align:center;padding:20px 0 0;
+}
+
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+@media (max-width:400px){
+  .grid{gap:7px}
+  .cell{padding:9px 4px 7px}
+  .daytitle{font-size:26px}
+}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header class="masthead">
+    <div class="mark">Ran<span>ge</span></div>
+    <div class="mast-sub" id="mastsub">Day 1 of 30</div>
+  </header>
+</div>
+
+<!-- ============ TODAY ============ -->
+<section class="view on" id="v-today">
+  <div class="wrap">
+    <div class="gonio">
+      <svg viewBox="0 0 200 116" role="img" aria-labelledby="gt">
+        <title id="gt">Session completion arc</title>
+        <g stroke="#2B4F48" stroke-width="1">
+          <line x1="20" y1="100" x2="27" y2="100"/>
+          <line x1="30.3" y1="59.1" x2="36.6" y2="62.1"/>
+          <line x1="59.1" y1="30.3" x2="62.1" y2="36.6"/>
+          <line x1="100" y1="20" x2="100" y2="27"/>
+          <line x1="140.9" y1="30.3" x2="137.9" y2="36.6"/>
+          <line x1="169.7" y1="59.1" x2="163.4" y2="62.1"/>
+          <line x1="180" y1="100" x2="173" y2="100"/>
+        </g>
+        <path d="M20 100 A80 80 0 0 1 180 100" fill="none" stroke="#2B4F48" stroke-width="7" stroke-linecap="round"/>
+        <path id="arc" d="M20 100 A80 80 0 0 1 180 100" fill="none" stroke="#E0A82E" stroke-width="7"
+              stroke-linecap="round" stroke-dasharray="0 260" style="transition:stroke-dasharray .4s ease"/>
+        <circle id="needle" cx="20" cy="100" r="4.5" fill="#EFE9DC"
+                style="transition:transform .4s ease;transform-origin:100px 100px"/>
+      </svg>
+      <div class="gonio-read">
+        <div class="gonio-pct" id="pct">0%</div>
+        <div class="gonio-cap" id="pctcap">0 of 0 done</div>
+      </div>
+    </div>
+
+    <div class="dayhead">
+      <div class="daynum" id="d-num">Day 1 · Session A</div>
+      <h1 class="daytitle" id="d-title">Acceleration &amp; ankles</h1>
+      <div class="daysub" id="d-sub">30 minutes · before weights</div>
+    </div>
+    <div class="focus" id="d-focus"></div>
+
+    <div id="blocks"></div>
+
+    <div class="dayfoot">
+      <button class="btn" id="prevDay">← Prev</button>
+      <button class="btn" id="clearDay">Clear day</button>
+      <button class="btn btn-go" id="nextDay">Next →</button>
+    </div>
+    <div class="saveflag" id="saveflag">Progress saves on this device</div>
+  </div>
+</section>
+
+<!-- ============ 30 DAYS ============ -->
+<section class="view" id="v-plan">
+  <div class="wrap">
+    <div class="viewhead">
+      <h2>The 30 days</h2>
+      <p>Each arc shows how much of that day you finished. Tap any day to open it.</p>
+    </div>
+    <div id="cal"></div>
+  </div>
+</section>
+
+<!-- ============ NUMBERS ============ -->
+<section class="view" id="v-numbers">
+  <div class="wrap">
+    <div class="viewhead">
+      <h2>Numbers</h2>
+      <p>Fill this in on day 1, day 14 and day 30. Thirty days of honest measurement beats any amount of how it felt.</p>
+    </div>
+    <table class="mtable"><thead><tr>
+      <th>Measure</th><th>Day 1</th><th>Day 14</th><th>Day 30</th>
+    </tr></thead><tbody id="mbody"></tbody></table>
+    <p class="g-p" style="margin-top:20px">Compare left against right, not just now against then. A gap wider than about 2&nbsp;cm in the knee-to-wall test, or a clear difference in Copenhagen hold time, is worth an extra set on the weaker side every session.</p>
+  </div>
+</section>
+
+<!-- ============ GUIDE ============ -->
+<section class="view" id="v-guide">
+  <div class="wrap">
+    <div class="viewhead">
+      <h2>Guide</h2>
+      <p>Read once properly. Come back to the safety section whenever something starts hurting.</p>
+    </div>
+
+    <h3 class="g-h">Your tilt is anterior</h3>
+    <p class="g-p">Hand slides through behind the lower back, belly pushes forward. That's a forward-rotated pelvis: front hip bones dropped, tailbone lifted, lumbar arch exaggerated.</p>
+    <p class="g-p"><b>It is not a flexibility problem.</b> Most people stretch hip flexors for a month and nothing changes. It's a control problem — your ribs and pelvis have drifted apart, and your deep core, glutes and hamstrings aren't holding the pelvis in place under load.</p>
+    <p class="g-p">The fix is roughly <b>70% strength and breathing, 30% length work</b>. Stretch the hip flexors, absolutely. But the reps that change how you stand are the ones where you actively hold a posterior tilt against resistance — dead bugs, bridges, hollow holds, RKC planks.</p>
+
+    <h3 class="g-h">Rib flare is your real cue</h3>
+    <p class="g-p">Forget the mirror. In every position in this program, the check is: <b>are my lower ribs pulled down and knitted to my pelvis?</b> If your ribs are flaring up and forward, the pelvis has tipped, no matter what your lower back feels like. Exhale fully — all the way to empty — and you'll feel the ribs drop. That's the position you're trying to own.</p>
+
+    <h3 class="g-h">Static stretching before lifting</h3>
+    <div class="g-call">Long static holds right before heavy lifting temporarily reduce force output. Small effect, but you're chasing acceleration, so it counts. <b>Static holds in this program are capped at 30–45 seconds.</b> The long holds live in the evening block below — do those at night or on rest days, not twenty minutes before you squat.</div>
+
+    <h3 class="g-h">Ankles and acceleration</h3>
+    <p class="g-p">Two separate things, both needed. <b>Range</b> — knee-over-toe dorsiflexion, so you can hit deep acceleration angles without the heel lifting or the knee caving in. And <b>strength through that range</b> — tibialis anterior, soleus, and the big toe. Range without strength doesn't make you faster, it just makes you bendy.</p>
+    <p class="g-p">Your <b>big toe extension</b> is the most under-trained piece for sprinting. Every push-off finishes there. It's in the program daily for a reason.</p>
+
+    <h3 class="g-h">Flow volume</h3>
+    <p class="g-p">Animal Flow doesn't progress by adding reps. It progresses by <b>continuous time under tension</b>, then complexity, then less rest. The rehearsal reps in Block 03 stay small on purpose — they exist so the shapes are fresh when you start the chain. Block 04 is the training.</p>
+    <ul class="g-l">
+      <li><b>Day 3</b> — learn the moves individually. No chain at all.</li>
+      <li><b>Day 9</b> — 2 rounds × 45 sec continuous, 60 sec rest.</li>
+      <li><b>Day 13</b> — 3 rounds × 60 sec, 45 sec rest.</li>
+      <li><b>Day 18</b> — 4 rounds × 60 sec, 30 sec rest. Add your own transitions.</li>
+      <li><b>Day 23</b> — 4 rounds × 90 sec, 30 sec rest, run reactively.</li>
+      <li><b>Day 27</b> — 5 rounds × 90 sec, 30 sec rest.</li>
+      <li><b>Day 30</b> — 3 free-form rounds, your own sequence.</li>
+    </ul>
+    <div class="g-call">There is a ceiling on how hard this session can go, because it runs before you lift. Flog the flow and your shoulders and core are cooked for pressing. <b>If you want to train Animal Flow as a discipline rather than as preparation, that's a separate 45–60 minute session on a day you aren't pressing.</b></div>
+
+    <h3 class="g-h">Demo links</h3>
+    <p class="g-p">The play button beside each exercise opens a YouTube search, not a fixed video. Specific links break when channels rename or delete; a search always surfaces whatever the best current demonstration is. Each query is written for the movement, so cross-check two or three results before copying a form cue — quality varies.</p>
+
+    <h3 class="g-h">Safety</h3>
+    <ul class="g-l">
+      <li>Never enter a deep ATG position cold. Block 01 exists for this.</li>
+      <li>Knees-over-toes work should feel like effort and stretch. Never sharp, never pinching. Pinching at the front of the ankle means elevate the heel slightly and cut the depth.</li>
+      <li>On heavy lower-body lift days, halve Block 02 so you don't arrive pre-fatigued.</li>
+      <li>Sore is fine. Painful is not. Genuine pain means stop that movement and see a physio in person — an app can't examine your joint.</li>
+    </ul>
+
+    <h3 class="g-h">Progression by week</h3>
+    <ul class="g-l">
+      <li><b>Week 1</b> — learn the positions. Bodyweight only, no depth chasing. Halve the reps if needed. Feeling the right muscles beats getting sore.</li>
+      <li><b>Week 2</b> — full reps, 2-second pauses at end range, light load on split squats, calf raises and Copenhagens.</li>
+      <li><b>Week 3</b> — more depth, more load, longer flows, add the reactive work properly.</li>
+      <li><b>Week 4</b> — sport transfer. More speed and reactivity in Block 04, accelerations and bounds added on.</li>
+    </ul>
+
+    <h3 class="g-h">Evening decompression · 10 min</h3>
+    <p class="g-p">Optional, and separate from the pre-lift work. Do it on the nights you feel wound up. This is where deep tension actually leaves the body.</p>
+    <ul class="g-l">
+      <li>Legs up the wall, 4-in / 8-out breathing — 3 min</li>
+      <li>Couch stretch — 90 sec per side</li>
+      <li>90/90 hip hold, folding over the front leg — 90 sec per side</li>
+      <li>Pancake fold — 90 sec</li>
+      <li>Thoracic extension over a roller — 1 min</li>
+      <li>Supine twist — 60 sec per side</li>
+      <li>Neck and jaw release — 1 min</li>
+    </ul>
+    <p class="g-p">After long days on site, the couch stretch, thoracic extension and legs-up-the-wall are the three that pay back most per minute.</p>
+
+    <h3 class="g-h">What to expect</h3>
+    <ul class="g-l">
+      <li><b>Week 1–2</b> — shin burn from tibialis raises, adductor soreness from Copenhagens, better ankle range within days. No postural change yet. That's normal.</li>
+      <li><b>Week 3–4</b> — deeper squat and split squat, more confident cutting and deceleration, the flow starts feeling continuous rather than like separate moves.</li>
+      <li><b>The tilt itself</b> is a 3–6 month project, not a 30-day one. Thirty days buys you the control and the strength base. How you stand at rest follows several weeks behind that. Keep going.</li>
+    </ul>
+
+    <h3 class="g-h">After day 30</h3>
+    <p class="g-p">Run the calendar again with heavier loads and longer flow rounds, or drop to four days a week and put the freed time into sprint work and jumping. The sessions don't expire — the progressions do.</p>
+
+    <div class="dayfoot"><button class="btn" id="resetAll">Reset all progress</button></div>
+  </div>
+</section>
+
+<nav class="nav"><div class="nav-in">
+  <button class="tab on" data-v="today">Today</button>
+  <button class="tab" data-v="plan">30 days</button>
+  <button class="tab" data-v="numbers">Numbers</button>
+  <button class="tab" data-v="guide">Guide</button>
+</div></nav>
+
+<script>
+/* ---------------- data ---------------- */
+var S = {
+A:{t:"Acceleration & ankles",b:[
+ {n:"Reset & prep",m:"5 min",i:[
+  ["90/90 breathing, feet on the wall","6 breaths","Exhale all the way to empty. Feel the ribs drop and the lower back flatten. Memorise this — it's your reference position."],
+  ["Ankle CARs, slow full circles","5 each way / side"],
+  ["Toe splay, then big toe lifts","10 each way / side"],
+  ["Short foot arch doming","10 / side"]]},
+ {n:"Ankles & knees",m:"8 min",i:[
+  ["Tibialis raises, back to wall","25 reps","Heels about 30 cm out. Pull the toes up slowly. The burn in the shin is the point."],
+  ["KOT calf raise, knee bent","15 / side"],
+  ["ATG split squat","8–10 / side","Front foot flat, back knee to the floor, front knee well past the toes. Elevate the front foot if the depth isn't there yet."],
+  ["Elephant walks","20 alternating"],
+  ["Deep squat sit","45 sec","Rock gently side to side and forward over the toes."]]},
+ {n:"Pelvis & hips",m:"9 min",i:[
+  ["Dead bug, long exhale each rep","8 / side"],
+  ["Half-kneeling hip flexor, glute on","40 sec / side","Squeeze the back glute hard, tuck the tailbone, then reach overhead and away."],
+  ["Glute bridge, 2 sec pause on top","12 reps"],
+  ["Copenhagen plank, knee on bench","20 sec / side","Groin-strain insurance for soccer and AFL."],
+  ["90/90 hip switches","10 total"]]},
+ {n:"Sport skill",m:"8 min",i:[
+  ["Wall drill / A-skip","3 × 20 sec"],
+  ["Backward walking","3 × 30 m","The sled substitute. Heel to toe, upright, knees soft."],
+  ["Lateral shuffle into a hard cut","4 × 15 m"],
+  ["Pogo hops, stiff ankles","3 × 20"]]}]},
+
+B:{t:"Pelvis, core & posterior chain",b:[
+ {n:"Reset & prep",m:"5 min",i:[
+  ["90/90 breathing","6 breaths"],
+  ["Wall posterior tilt holds","5 × 10 sec","Press the lower back into the wall. Learn to produce the tilt on demand while standing."],
+  ["Hip CARs","5 each way / side"],
+  ["Segmented cat-cow","10 reps"]]},
+ {n:"Ankles & knees",m:"8 min",i:[
+  ["Tibialis raises","20 reps"],
+  ["Poliquin step-up, low box","8 / side","Slow, heel elevated, knee travelling forward."],
+  ["Seated soleus raise, loaded","15 reps"],
+  ["Knee-to-wall test, then reps","10 / side","Measure toe-to-wall in cm first and log it under Numbers."]]},
+ {n:"Pelvis & hips",m:"9 min",i:[
+  ["Dead bug with heel taps","10 / side"],
+  ["Single-leg glute bridge","10 / side"],
+  ["Hip airplane, hand on a wall","5 / side"],
+  ["Nordic or slider hamstring curl","5 reps, 5 sec down","Hamstring strength at long lengths is the best single predictor of hamstring-injury resistance in AFL-type running."],
+  ["Copenhagen plank","25 sec / side"],
+  ["RKC plank, maximum tension","3 × 15 sec","Tailbone tucked, glutes on, ribs down."],
+  ["Wall march, tilt held","8 / side"]]},
+ {n:"Flow",m:"8 min",i:[
+  ["Crab reach","6 / side"],
+  ["Scorpion reach","6 / side"],
+  ["Thoracic bridge rotation","8 / side"],
+  ["Cossack squat","8 / side"],
+  ["90/90 to standing, no hands","8 reps"]]}]},
+
+C:{t:"Animal flow & movement",b:[
+ {n:"Reset & prep",m:"5 min",i:[
+  ["90/90 breathing","5 breaths"],
+  ["Full wrist prep","3 min","Palms down rocking, palms up, fingers back, fists, circles. Non-negotiable — this is what stops wrist pain later when the planche work gets heavy."],
+  ["Ankle CARs + toe splay","1 min"],
+  ["Shoulder CARs","5 / side"]]},
+ {n:"Ankles & knees",m:"6 min",i:[
+  ["Tibialis raises","20 reps"],
+  ["ATG split squat","8 / side"],
+  ["Deep squat sit + rotation reach","45 sec"]]},
+ {n:"Flow foundations",m:"11 min",i:[
+  ["Beast hold","3 × 20 sec","Knees hovering 3 cm, flat back, ribs down."],
+  ["Beast shoulder taps","10 / side"],
+  ["Ape, side to side","8 / side"],
+  ["Lateral travelling beast","6 / side"],
+  ["Underswitch, slow","5 / side"],
+  ["Side kickthrough","8 / side"],
+  ["Loaded beast into crab","5 / side"]]},
+ {n:"The flow",m:"8 min",i:[
+  ["Round 1","see focus note for length","Beast → kickthrough L → crab reach L → beast → kickthrough R → crab reach R → underswitch L → scorpion L → underswitch R → scorpion R → ape ×3 → beast hold 10 sec. Hands and feet stay on the floor the whole way."],
+  ["Round 2","same chain","This is where the session's actual work lives. Block 03 was rehearsal."],
+  ["Round 3","same chain"],
+  ["Round 4","week 3 onward"],
+  ["Round 5","week 4 onward","If you finish round 5 still breathing through your nose, slow every transition down rather than adding a sixth."]]}]},
+
+D:{t:"Calisthenics & upper body",b:[
+ {n:"Reset & prep",m:"5 min",i:[
+  ["90/90 breathing","5 breaths"],
+  ["Full wrist prep","3 min"],
+  ["Shoulder CARs + band pass-throughs","10 reps"]]},
+ {n:"Ankles & knees",m:"6 min",i:[
+  ["Tibialis raises","20 reps"],
+  ["KOT calf raise","15 / side"],
+  ["Elephant walks","20 alternating"]]},
+ {n:"Pelvis & core",m:"7 min",i:[
+  ["Hollow body hold","3 × 20–30 sec","Same ribs-down, pelvis-tucked shape as your 90/90 breathing — and exactly what a planche demands. Your tilt work and your planche work are the same skill."],
+  ["Dead bug","8 / side"],
+  ["Reverse crunch or dragon flag negative","6 reps"]]},
+ {n:"Planche & scapula",m:"12 min",i:[
+  ["Scapular push-ups","12 reps"],
+  ["Active hang / scapular pulls","3 × 20 sec"],
+  ["Planche lean","3 × 15–25 sec","Hands turned out, shoulders forward past the wrists, hips level with the shoulders, glutes on."],
+  ["Pseudo planche push-ups, slow","3 × 5–8"],
+  ["Pike push-up or wall handstand","3 × 20 sec"],
+  ["Thoracic extension over a roller","10 reps"],
+  ["Straddle pancake sit","45 sec"]]}]},
+
+R:{t:"Recovery & decompression",b:[
+ {n:"Unload",m:"10 min",i:[
+  ["Legs up the wall, 4-in / 8-out","3 min"],
+  ["Plantar fascia ball roll","1 min / foot"],
+  ["Calf and soleus wall stretch","60 sec / position / side"]]},
+ {n:"Long holds",m:"14 min",i:[
+  ["Couch stretch","2 min / side","Glute engaged, tailbone tucked. This is the one that matters most for your tilt."],
+  ["Pigeon or 90/90 hold","90 sec / side"],
+  ["Pancake fold","2 min"],
+  ["Jefferson curl, very light","5 slow reps","One vertebra at a time."],
+  ["Doorway pec stretch, two heights","45 sec each"]]},
+ {n:"Settle",m:"6 min",i:[
+  ["Child's pose with side reach","45 sec / side"],
+  ["Supine twist","60 sec / side"],
+  ["Neck: levator and upper trap","30 sec / side"],
+  ["Stillness, 4-in / 8-out","2 min"]]}]}
+};
+
+var CAL = [
+ [1,"A","Do the wall test and the knee-to-wall test. Log both under Numbers before you start."],
+ [2,"B","Priority today is learning to produce a posterior tilt on demand."],
+ [3,"C","Learn the animal flow moves individually. Skip the chained rounds entirely today."],
+ [4,"A",""],
+ [5,"D","Wrist prep is the priority, not the planche lean."],
+ [6,"B",""],
+ [7,"R",""],
+ [8,"A","Add load to the ATG split squat."],
+ [9,"C","Flow: 2 rounds of 45 sec continuous, 60 sec rest. Nothing leaves the floor."],
+ [10,"B","Introduce Nordic eccentrics."],
+ [11,"D","Planche lean up to 3 × 20 sec."],
+ [12,"A",""],
+ [13,"C","Flow: 3 rounds of 60 sec continuous, 45 sec rest."],
+ [14,"R","Re-test the wall and knee-to-wall. Log day 14 under Numbers."],
+ [15,"A","Add pogo hops and hard decelerations."],
+ [16,"D","Pseudo planche push-ups up to 3 × 8."],
+ [17,"B","Copenhagen up to 30 sec per side."],
+ [18,"C","Flow: 4 rounds of 60 sec, 30 sec rest. Start adding your own transitions."],
+ [19,"A","Backward walking with a loaded backpack."],
+ [20,"B",""],
+ [21,"R",""],
+ [22,"A","Add 3 × 20 m accelerations at about 80% after Block 04."],
+ [23,"C","Flow: 4 rounds of 90 sec, 30 sec rest. Run it reacting to a target or a partner."],
+ [24,"D","Planche lean up to 3 × 25–30 sec."],
+ [25,"A","Add single-leg bounds, 3 × 20 m."],
+ [26,"B","Full posterior chain. Heaviest Copenhagen yet."],
+ [27,"C","Flow: 5 rounds of 90 sec, 30 sec rest. Hardest flow day of the block."],
+ [28,"R",""],
+ [29,"A","Hybrid day. Pick your two weakest movements from A and B and hit those hard."],
+ [30,"C","Flow: 3 free-form rounds, your own sequence. Then re-test everything and log day 30, and take a side-profile photo to compare with day 1."]
+];
+
+var WEEKS = [
+ [1,7,"Week 1","Learn the positions. Bodyweight only."],
+ [8,14,"Week 2","Add tempo, tension and light load."],
+ [15,21,"Week 3","Add range and complexity."],
+ [22,28,"Week 4","Sport transfer. Speed and reactivity."],
+ [29,30,"Close","Consolidate and re-test."]
+];
+
+var METRICS = [
+ ["wall","Wall test gap behind lower back","fingers"],
+ ["ktwL","Knee-to-wall, left","cm"],
+ ["ktwR","Knee-to-wall, right","cm"],
+ ["squat","Deep squat hold, heels down","sec"],
+ ["atg","ATG split squat load","kg"],
+ ["cope","Copenhagen hold","sec"],
+ ["planche","Planche lean hold","sec"]
+];
+
+/* ---------------- demo search queries ---------------- */
+var QO = {
+"90/90 breathing, feet on the wall":"90 90 breathing exercise wall",
+"90/90 breathing":"90 90 breathing exercise",
+"90/90 hip switches":"90 90 hip switch mobility drill",
+"90/90 to standing, no hands":"90 90 hip switch to standing no hands",
+"Ankle CARs, slow full circles":"ankle CARs controlled articular rotations",
+"Ankle CARs + toe splay":"ankle CARs controlled articular rotations",
+"Toe splay, then big toe lifts":"big toe mobility exercise toe splay lifts",
+"Short foot arch doming":"short foot exercise arch doming",
+"Tibialis raises, back to wall":"tibialis raise wall knees over toes",
+"Tibialis raises":"tibialis raise knees over toes",
+"KOT calf raise, knee bent":"knees over toes bent knee calf raise",
+"KOT calf raise":"knees over toes calf raise",
+"ATG split squat":"ATG split squat tutorial knees over toes",
+"Elephant walks":"elephant walk calf hamstring mobility",
+"Deep squat sit":"deep squat hold mobility drill",
+"Deep squat sit + rotation reach":"deep squat thoracic rotation reach",
+"Dead bug, long exhale each rep":"dead bug exercise exhale ribs down",
+"Dead bug with heel taps":"dead bug heel taps",
+"Dead bug":"dead bug exercise form",
+"Half-kneeling hip flexor, glute on":"half kneeling hip flexor stretch glute squeeze posterior tilt",
+"Glute bridge, 2 sec pause on top":"glute bridge form ribs down",
+"Copenhagen plank, knee on bench":"copenhagen plank short lever adductor",
+"Copenhagen plank":"copenhagen plank adductor",
+"Wall drill / A-skip":"sprint wall drill a skip acceleration",
+"Backward walking":"backwards walking knees over toes sled substitute",
+"Lateral shuffle into a hard cut":"lateral shuffle deceleration cutting drill",
+"Pogo hops, stiff ankles":"pogo hops stiff ankle plyometric",
+"Wall posterior tilt holds":"posterior pelvic tilt against wall exercise",
+"Hip CARs":"hip CARs controlled articular rotations",
+"Segmented cat-cow":"segmental cat cow spine articulation",
+"Poliquin step-up, low box":"poliquin step up knees over toes",
+"Seated soleus raise, loaded":"seated calf raise soleus loaded",
+"Knee-to-wall test, then reps":"knee to wall ankle dorsiflexion test",
+"Single-leg glute bridge":"single leg glute bridge",
+"Hip airplane, hand on a wall":"hip airplane exercise tutorial",
+"Nordic or slider hamstring curl":"nordic hamstring curl beginner progression",
+"RKC plank, maximum tension":"RKC plank maximum tension",
+"Wall march, tilt held":"wall march posterior pelvic tilt core",
+"Crab reach":"animal flow crab reach tutorial",
+"Scorpion reach":"animal flow scorpion reach tutorial",
+"Thoracic bridge rotation":"animal flow thoracic bridge rotation",
+"Cossack squat":"cossack squat form",
+"Full wrist prep":"wrist warm up routine calisthenics",
+"Shoulder CARs":"shoulder CARs controlled articular rotations",
+"Shoulder CARs + band pass-throughs":"shoulder CARs band pass through warm up",
+"Beast hold":"animal flow beast hold tutorial",
+"Beast shoulder taps":"animal flow beast shoulder taps",
+"Ape, side to side":"animal flow ape tutorial",
+"Lateral travelling beast":"animal flow lateral traveling beast",
+"Underswitch, slow":"animal flow underswitch tutorial",
+"Side kickthrough":"animal flow side kickthrough tutorial",
+"Loaded beast into crab":"animal flow loaded beast to crab reach transition",
+"Round 1":"animal flow beginner flow sequence",
+"Round 2":"animal flow beginner flow sequence",
+"Round 3":"animal flow intermediate flow sequence",
+"Round 4":"animal flow intermediate flow sequence",
+"Round 5":"animal flow advanced flow sequence",
+"Hollow body hold":"hollow body hold form",
+"Reverse crunch or dragon flag negative":"reverse crunch dragon flag progression",
+"Scapular push-ups":"scapular push ups protraction",
+"Active hang / scapular pulls":"scapular pull ups active hang",
+"Planche lean":"planche lean tutorial",
+"Pseudo planche push-ups, slow":"pseudo planche push up tutorial",
+"Pike push-up or wall handstand":"pike push up wall handstand hold",
+"Thoracic extension over a roller":"thoracic extension foam roller",
+"Straddle pancake sit":"pancake stretch straddle",
+"Legs up the wall, 4-in / 8-out":"legs up the wall pose breathing",
+"Plantar fascia ball roll":"plantar fascia ball release",
+"Calf and soleus wall stretch":"gastrocnemius soleus wall stretch",
+"Couch stretch":"couch stretch hip flexor",
+"Pigeon or 90/90 hold":"pigeon pose hip stretch",
+"Pancake fold":"pancake stretch progression",
+"Jefferson curl, very light":"jefferson curl tutorial light",
+"Doorway pec stretch, two heights":"doorway pec stretch two heights",
+"Child\u0027s pose with side reach":"childs pose side reach stretch",
+"Supine twist":"supine spinal twist stretch",
+"Neck: levator and upper trap":"levator scapulae upper trap stretch",
+"Stillness, 4-in / 8-out":"4 8 breathing downregulation"
+};
+function demoUrl(name){
+  var q = QO[name] || (name.split(",")[0].split(" / ")[0] + " exercise tutorial");
+  return "https://www.youtube.com/results?search_query=" + encodeURIComponent(q);
+}
+
+/* ---------------- storage ---------------- */
+var KEY = "range.v1", mem = null, canStore = true;
+function load(){
+  if(mem) return mem;
+  try{ var r = localStorage.getItem(KEY); mem = r ? JSON.parse(r) : {}; }
+  catch(e){ canStore = false; mem = {}; }
+  if(!mem.done) mem.done = {};
+  if(!mem.metrics) mem.metrics = {};
+  if(!mem.day) mem.day = 1;
+  return mem;
+}
+function save(){
+  if(!canStore) return;
+  try{ localStorage.setItem(KEY, JSON.stringify(mem)); }
+  catch(e){ canStore = false; flagStore(); }
+}
+function flagStore(){
+  document.getElementById("saveflag").textContent =
+    canStore ? "Progress saves on this device" : "Storage blocked — progress lasts this session only";
+}
+
+var st = load();
+var day = st.day || 1;
+
+/* ---------------- helpers ---------------- */
+function sessionFor(d){ return S[CAL[d-1][1]]; }
+function idsFor(d){
+  var s = sessionFor(d), out = [];
+  s.b.forEach(function(bl,bi){ bl.i.forEach(function(_,ii){ out.push(bi+"."+ii); }); });
+  return out;
+}
+function doneList(d){ return st.done[d] || []; }
+function ratio(d){
+  var all = idsFor(d).length;
+  return all ? doneList(d).length / all : 0;
+}
+function esc(x){ return String(x).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
+
+/* ---------------- today ---------------- */
+var PLAY = '<svg viewBox="0 0 10 12" fill="currentColor" aria-hidden="true"><path d="M0 0 10 6 0 12Z"/></svg>';
+var TICK = '<svg viewBox="0 0 24 24" fill="none" stroke="#0F1F1D" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.5 9.5 18 20 6.5"/></svg>';
+
+function renderDay(){
+  var row = CAL[day-1], s = sessionFor(day), done = doneList(day);
+
+  document.getElementById("mastsub").textContent = "Day " + day + " of 30";
+  document.getElementById("d-num").textContent = "Day " + day + " · Session " + row[1];
+  document.getElementById("d-title").textContent = s.t;
+  document.getElementById("d-sub").textContent = row[1] === "R"
+    ? "30 minutes · rest day, no intensity"
+    : "30 minutes · before weights";
+
+  var wk = WEEKS.filter(function(w){ return day >= w[0] && day <= w[1]; })[0];
+  var f = document.getElementById("d-focus");
+  f.innerHTML = "<b>" + esc(wk[2]) + " — " + esc(wk[3]) + "</b>" + (row[2] ? "<br>" + esc(row[2]) : "");
+
+  var html = "";
+  s.b.forEach(function(bl, bi){
+    html += '<div class="block"><div class="block-head">'
+         +  '<span class="block-n">' + ("0" + (bi+1)).slice(-2) + '</span>'
+         +  '<span class="block-name">' + esc(bl.n) + '</span>'
+         +  '<span class="block-min">' + esc(bl.m) + '</span></div>';
+    bl.i.forEach(function(it, ii){
+      var id = bi + "." + ii, on = done.indexOf(id) > -1;
+      html += '<div class="item' + (on ? " on" : "") + '">'
+           +  '<button class="item-main" data-id="' + id + '" aria-pressed="' + on + '">'
+           +  '<span class="tick">' + TICK + '</span><span class="item-body">'
+           +  '<span class="item-name">' + esc(it[0]) + '</span>'
+           +  '<span class="item-dose">' + esc(it[1]) + '</span>'
+           +  (it[2] ? '<span class="item-note">' + esc(it[2]) + '</span>' : '')
+           +  '</span></button>'
+           +  '<a class="demo" href="' + demoUrl(it[0]) + '" target="_blank" rel="noopener noreferrer"'
+           +  ' aria-label="Watch a demo of ' + esc(it[0]) + '">' + PLAY + '</a>'
+           +  '</div>';
+    });
+    html += '</div>';
+  });
+  document.getElementById("blocks").innerHTML = html;
+
+  document.getElementById("prevDay").disabled = day === 1;
+  document.getElementById("nextDay").disabled = day === 30;
+  drawArc();
+}
+
+function drawArc(){
+  var r = ratio(day), L = 251.3;
+  document.getElementById("arc").setAttribute("stroke-dasharray", (r * L).toFixed(1) + " 260");
+  document.getElementById("needle").style.transform = "rotate(" + (r * 180) + "deg)";
+  document.getElementById("pct").textContent = Math.round(r * 100) + "%";
+  var n = doneList(day).length, all = idsFor(day).length;
+  document.getElementById("pctcap").textContent = n + " of " + all + " done";
+}
+
+document.getElementById("blocks").addEventListener("click", function(e){
+  var btn = e.target.closest(".item-main"); if(!btn) return;
+  var row = btn.parentElement;
+  var id = btn.dataset.id, list = st.done[day] || (st.done[day] = []), k = list.indexOf(id);
+  if(k > -1){ list.splice(k, 1); row.classList.remove("on"); btn.setAttribute("aria-pressed","false"); }
+  else { list.push(id); row.classList.add("on"); btn.setAttribute("aria-pressed","true"); }
+  save(); drawArc(); renderCal();
+});
+
+function goDay(d){
+  day = Math.min(30, Math.max(1, d));
+  st.day = day; save(); renderDay(); window.scrollTo(0, 0);
+}
+document.getElementById("prevDay").onclick = function(){ goDay(day - 1); };
+document.getElementById("nextDay").onclick = function(){ goDay(day + 1); };
+document.getElementById("clearDay").onclick = function(){
+  st.done[day] = []; save(); renderDay(); renderCal();
+};
+
+/* ---------------- calendar ---------------- */
+function miniArc(r){
+  var L = 50.3;
+  return '<svg viewBox="0 0 40 24" aria-hidden="true">'
+       + '<path d="M4 21 A16 16 0 0 1 36 21" fill="none" stroke="#2B4F48" stroke-width="3" stroke-linecap="round"/>'
+       + '<path d="M4 21 A16 16 0 0 1 36 21" fill="none" stroke="' + (r >= 1 ? "#57C79C" : "#E0A82E")
+       + '" stroke-width="3" stroke-linecap="round" stroke-dasharray="' + (r * L).toFixed(1) + ' 60"/></svg>';
+}
+function renderCal(){
+  var html = "";
+  WEEKS.forEach(function(w){
+    html += '<div class="weekband"><span class="week-n">' + esc(w[2]) + '</span><span class="week-t">' + esc(w[3]) + '</span></div><div class="grid">';
+    for(var d = w[0]; d <= w[1]; d++){
+      var r = ratio(d);
+      html += '<button class="cell' + (d === day ? " now" : "") + (r >= 1 ? " done" : "") + '" data-d="' + d + '">'
+           +  '<span class="cell-d">Day ' + d + '</span>' + miniArc(r)
+           +  '<span class="cell-s">' + CAL[d-1][1] + '</span></button>';
+    }
+    html += '</div>';
+  });
+  document.getElementById("cal").innerHTML = html;
+}
+document.getElementById("cal").addEventListener("click", function(e){
+  var c = e.target.closest(".cell"); if(!c) return;
+  goDay(+c.dataset.d); switchView("today");
+});
+
+/* ---------------- numbers ---------------- */
+function renderMetrics(){
+  var html = "";
+  METRICS.forEach(function(m){
+    html += "<tr><td>" + esc(m[1]) + '<span class="munit">' + esc(m[2]) + "</span></td>";
+    ["1","14","30"].forEach(function(c){
+      var v = (st.metrics[m[0] + "_" + c] || "");
+      html += '<td style="text-align:center"><input class="minput" inputmode="decimal" '
+           +  'data-k="' + m[0] + "_" + c + '" value="' + esc(v) + '" aria-label="' + esc(m[1]) + ' day ' + c + '"></td>';
+    });
+    html += "</tr>";
+  });
+  document.getElementById("mbody").innerHTML = html;
+}
+document.getElementById("mbody").addEventListener("input", function(e){
+  if(!e.target.classList.contains("minput")) return;
+  st.metrics[e.target.dataset.k] = e.target.value; save();
+});
+
+/* ---------------- nav ---------------- */
+function switchView(v){
+  document.querySelectorAll(".view").forEach(function(s){ s.classList.toggle("on", s.id === "v-" + v); });
+  document.querySelectorAll(".tab").forEach(function(t){ t.classList.toggle("on", t.dataset.v === v); });
+  window.scrollTo(0, 0);
+}
+document.querySelectorAll(".tab").forEach(function(t){
+  t.onclick = function(){ switchView(t.dataset.v); if(t.dataset.v === "plan") renderCal(); };
+});
+
+document.getElementById("resetAll").onclick = function(){
+  if(!confirm("Clear every tick and every measurement? This can't be undone.")) return;
+  mem = { done:{}, metrics:{}, day:1 }; st = mem; day = 1; save();
+  renderDay(); renderCal(); renderMetrics(); switchView("today");
+};
+
+/* ---------------- boot ---------------- */
+renderDay(); renderCal(); renderMetrics(); flagStore();
+</script>
+</body>
+</html>
